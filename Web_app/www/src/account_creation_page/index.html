@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="style/style.css">
+
+    </head>
+
+    <body>
+
+        <div class="wrapper">
+            <br>
+            <br>
+            <br>
+            <br>
+            <form action="create_acc.php" method="post" id="create_acc">
+                <h2>Korisničko ime:</h2>
+                <br><input type="text" name="username">
+                <br><br>
+                <h2>Lozinka:</h2>   
+                <br><input type="text" name="password"><br>
+                <h2>Ponovite lozinku:</h2>   
+                <br><input type="text" name="password2"><br>
+                <br>
+                <h2>Profesija:</h2>
+                <br>
+                <select form="create_acc">
+                    <option value="uc_prof">Ucenik / Profesor</option>
+                    <option value="uc_prof">Ravnatelj / Voditelj smjene</option>
+                </select>
+            </form>
+            <br><br><br>
+            <button type="submit" form="form1" value="Submit">Stvori račun</button>
+            <br>
+            <br>
+        </div>
+
+    </body>
+
+</html>
