@@ -50,13 +50,18 @@ void initialStartup()
   lcd.print("Povezivanje na mrezu");
   lcd.setCursor(0, 1);
   lcd.print("=>");
+  //ethernetSetup();
   //client.stop();
+  lcd.setCursor(0, 2);
+  lcd.print(" Spajanje na server ");
   for (int i = 1; i <= 5; i++)
   {
     if (false /*client.connect(server, 8080);*/)
     {
-      lcd.setCursor(0, 3);
+      lcd.setCursor(0, 2);
       lcd.print("  Spojen na server  ");
+      lcd.setCursor(0, 3);
+      lcd.print("PHP7.4-Apache Debian");
       break;
     }
     else
@@ -68,6 +73,7 @@ void initialStartup()
     }
     if (i == 5)
     {
+      delay(1000);
       lcd.setCursor(0, 3);
       lcd.print("Server nije dostupan");
     }
