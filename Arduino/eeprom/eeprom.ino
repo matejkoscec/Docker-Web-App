@@ -37,7 +37,7 @@ void setup() {
   eepromManage(_string);
   Serial.println("eeprom manage gotov\n");
 
-  _string="#dtest2";
+  _string="#atest3?07300810081509050955101511001105115011551240124513300730081008150905095510151100110511501155124012451330#";
   eepromManage(_string);
   Serial.println("eeprom manage gotov\n");
 
@@ -130,6 +130,34 @@ void eepromManage(String string)
     EEPROM.put(time_get.location, time_get);
   }
 
+  if (string[1] == 'a')
+  { 
+    time_get.location = 0;
+    time_get.option_name = "";
+    time_get.option_value = "";
+    Serial.print("\nactive\n");
+    int t = 0;
+    for (int i = 2; i < string.length(); i++)
+    {
+      if (t == 0 && string[i] != '?') time_get.option_name += string[i];
+      else
+      {
+        time_get.option_name += '\0';
+        if (t == 0) i++;
+        t = 1;
+      }
+      
+      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value += string[i];
+      else if (t == 1)
+      {
+        time_get.option_value += '\0';
+        break;
+      }
+    }
+    
+    EEPROM.put(time_get.location, time_get);
+  }
+  
   updateStruct();
   return;
 }

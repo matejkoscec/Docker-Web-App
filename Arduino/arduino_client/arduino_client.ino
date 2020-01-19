@@ -4,12 +4,16 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include <EEPROM.h>
+#include <DS3231.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 
 //Ethernet shield
 
 int temp = 0;
-String temp_string = "";
+String _string = "";
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
@@ -53,14 +57,16 @@ const unsigned long postingInterval = 5000;     // delay between updates, in mil
 
 
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   while (!Serial) { ; }
 
   ethernetSetup();
 }
 
-void loop() {
+void loop()
+{
 
   //fetch server string
   if (client.available())
@@ -71,12 +77,12 @@ void loop() {
     if (c == '#' && temp == 1) 
     {
       temp = 0;
-      temp_string += c;
-      Serial.println(temp_string);
-      temp_string = "";
+      _string += c;
+      Serial.println(_string);
+      _string = "";
     }
     else if (c == '#') temp = 1;
-    if (temp == 1) temp_string += c;
+    if (temp == 1) _string += c;
   }
 
   // if ten seconds have passed since your last connection,
