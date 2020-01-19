@@ -3,7 +3,7 @@ int relay_signal_pin = 4;
 //Testni string, vrijeme povlači iz eeprom sa lokacije 0 na koju je pohranjena aktivna opcija
 String _string="07300810081509050955101511001105115011551240124513300730081008150905095510151100110511501155124012451330#";
 
-int ring_time;
+int nextRingIndex = 0;
 int ring_time_array[200];
 
 void setup()
@@ -52,6 +52,7 @@ void timeCheck()
     {
       if (true /*_time.hour == ring_time_array[i] && _time.min == ring_time_array[i + 1] && _time.sec >= 0 && _time.sec <= 3*/)
       {
+        nextRingIndex = i + 2;
         long unsigned int previousTime = millis();
         while (millis() - previousTime < 3000) digitalWrite(relay_signal_pin, HIGH);
         while (millis() - previousTime < 6000) digitalWrite(relay_signal_pin, LOW);

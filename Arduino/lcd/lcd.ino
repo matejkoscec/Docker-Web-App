@@ -23,7 +23,7 @@ void setup()
   mainDisplay();
 }
 
-void loop() 
+void loop()
 {
   // put your main code here, to run repeatedly:
 
@@ -44,7 +44,7 @@ void initialStartup()
   lcd.print(" +----------------+ ");
   lcd.setCursor(0, 3);
   lcd.print("      Welcome!      ");
-  delay(5000);
+  delay(1000);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Povezivanje na mrezu");
@@ -76,6 +76,7 @@ void initialStartup()
       delay(1000);
       lcd.setCursor(0, 3);
       lcd.print("Server nije dostupan");
+      break;
     }
     delay(1000);
   }
@@ -85,5 +86,49 @@ void initialStartup()
 
 void mainDisplay()
 {
-  
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  String dan = getDayOfWeek();
+  lcd.print(dan);
+  lcd.print(", ");
+  //lcd.print(rtc.getDateStr());
+  lcd.print(".");
+  lcd.setCursor(0, 1);
+  //lcd.print(rtc.getTimeStr());
+  lcd.setCursor(0, 2);
+  //lcd.print(time_get.option_name);
+  lcd.setCursor(0, 3);
+  //lcd.print(ring_time_array[nextRingIndex]);
+  //lcd.print(ring_time_array[nextRingIndex + 1]);
+}
+
+
+String getDayOfWeek()
+{
+  /*switch (rtc.getDOWStr())
+  {
+    case "Monday":
+      return "Pon.";
+      break;
+    case "Tuesday":
+      return "Uto.";
+      break;
+    case "Wednesday":
+      return "Sri.";
+      break;
+    case "Thursday":
+      return "Cet.";
+      break;
+    case "Friday":
+      return "Pet.";
+      break;
+    case "Saturday":
+      return "Sub.";
+      break;
+    default:
+      return "Ned.";
+      break;
+  }
+  */
+  return "";
 }

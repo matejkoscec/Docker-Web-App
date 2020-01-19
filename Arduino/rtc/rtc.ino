@@ -18,7 +18,7 @@ void loop()
 {
   _time = rtc.getTime();
   
-  Serial.print(_time.sec);
+  Serial.print(rtc.getDOWStr());
   Serial.print(" ");
   
   Serial.print(rtc.getDateStr());
