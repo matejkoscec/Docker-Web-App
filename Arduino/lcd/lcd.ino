@@ -7,16 +7,19 @@ int button_up = 2;
 int button_down = 3;
 int button_ok = 18;
 int button_ring = 19;
+bool _ring = false;
 
 int pointerIndex = 0;
 bool mainDisplayActive = true;
 bool settingsMenuActive = false;
 bool dateTimeSettingsActive = false;
+bool ringMenuActive = false;
 bool ringSelectMenuActive = false;
 bool exitSelectActive = false;
 
 void setup()
 {
+  pinMode(4, OUTPUT);
   pinMode(button_up, INPUT_PULLUP);
   pinMode(button_down, INPUT_PULLUP);
   pinMode(button_ok, INPUT_PULLUP);
@@ -26,7 +29,7 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(button_ok), select, FALLING);
   attachInterrupt(digitalPinToInterrupt(button_ring), ring, FALLING);
 
-  initialStartup();
+  //initialStartup();
   mainDisplay();
   
 }
@@ -88,7 +91,7 @@ void initialStartup()
     }
     delay(1000);
   }
-  delay(1000);
+  delay(2000);
 }
 
 
@@ -162,7 +165,7 @@ void settingsMenu()
       lcd.setCursor(0, 2);
       lcd.print("Izlaz");
       break;
-    case 3:
+    case 2:
       lcd.setCursor(0, 0);
       lcd.print("Datum i vrijeme");
       lcd.setCursor(0, 1);
@@ -171,4 +174,45 @@ void settingsMenu()
       lcd.print(">Izlaz");
       break;
   }
+}
+
+
+void ring()
+{
+  digitalWrite(4, _ring);
+  _ring = !_ring;
+}
+
+
+void pointerUp()
+{
+  pointerIndex--;
+  
+  if (ringMenuActive && pointerIndex < 2)
+  {
+    pointerIndex = 2;
+    return;
+  }
+  
+  if (pointerIndex < 0) pointerIndex = 0;
+}
+
+void pointerDown()
+{
+  pointerIndex++;
+
+  if (settingsMenuActive) if (pointerIndex > 2) pointerIndex = 2;
+
+  if (dateTimeSettingsActive) if (pointerIndex > 3) pointerIndex = 3;
+
+  if (ringMenuActive) if (pointerIndex > 3) pointerIndex = 3;
+  
+  if (ringSelectMenuActive) if (pointerIndex > 4/*recordsNum*/) pointerIndex = 4/*recordsNum*/;
+
+}
+
+
+void select()
+{
+  
 }
