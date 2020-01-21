@@ -8,19 +8,27 @@ int button_down = 3;
 int button_ok = 18;
 int button_ring = 19;
 
+int pointerIndex = 0;
+bool mainDisplayActive = true;
+bool settingsMenuActive = false;
+bool dateTimeSettingsActive = false;
+bool ringSelectMenuActive = false;
+bool exitSelectActive = false;
+
 void setup()
 {
   pinMode(button_up, INPUT_PULLUP);
   pinMode(button_down, INPUT_PULLUP);
   pinMode(button_ok, INPUT_PULLUP);
   pinMode(button_ring, INPUT_PULLUP);
-  //attachInterrupt(digitalPinToInterrupt(button_up), funkcija, FALLING);
-  //attachInterrupt(digitalPinToInterrupt(button_down), funkcija, FALLING);
-  //attachInterrupt(digitalPinToInterrupt(button_ok), funkcija, FALLING);
-  //attachInterrupt(digitalPinToInterrupt(button_ring), funkcija, FALLING);
+  attachInterrupt(digitalPinToInterrupt(button_up), pointerUp, FALLING);
+  attachInterrupt(digitalPinToInterrupt(button_down), pointerDown, FALLING);
+  attachInterrupt(digitalPinToInterrupt(button_ok), select, FALLING);
+  attachInterrupt(digitalPinToInterrupt(button_ring), ring, FALLING);
 
   initialStartup();
   mainDisplay();
+  
 }
 
 void loop()
@@ -131,4 +139,36 @@ String getDayOfWeek()
   }
   */
   return "";
+}
+
+
+void settingsMenu()
+{
+  switch(pointerIndex)
+  {
+    case 0:
+      lcd.setCursor(0, 0);
+      lcd.print(">Datum i vrijeme");
+      lcd.setCursor(0, 1);
+      lcd.print("Odabir zvonjave");
+      lcd.setCursor(0, 2);
+      lcd.print("Izlaz");
+      break;
+    case 1:
+      lcd.setCursor(0, 0);
+      lcd.print("Datum i vrijeme");
+      lcd.setCursor(0, 1);
+      lcd.print(">Odabir zvonjave");
+      lcd.setCursor(0, 2);
+      lcd.print("Izlaz");
+      break;
+    case 3:
+      lcd.setCursor(0, 0);
+      lcd.print("Datum i vrijeme");
+      lcd.setCursor(0, 1);
+      lcd.print("Odabir zvonjave");
+      lcd.setCursor(0, 2);
+      lcd.print(">Izlaz");
+      break;
+  }
 }
