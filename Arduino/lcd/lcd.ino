@@ -49,9 +49,6 @@ void setup()
   lcd.createChar(1, arrowUp);
 
   rtc.begin();
-  rtc.setDOW(FRIDAY);
-  rtc.setTime(02, 12, 12);
-  rtc.setDate(12, 2, 2020);
 
   //initialStartup();
   lcd.clear();
@@ -62,6 +59,12 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
+  uiRefresh();
+}
+
+
+void uiRefresh()
+{
   if (!runMainDisplay)
   {
     mainDisplayActive = true;
@@ -70,8 +73,6 @@ void loop()
 
   if (millis() - now >= 10) digitalWrite(4, LOW);
 
-  if (digitalRead(button_up) == HIGH && digitalRead(button_down) == HIGH && digitalRead(button_ok) == HIGH) allowButton = true;
-
   if (mainDisplayActive) mainDisplay();
   if (settingsActive) settings();
   if (dateSettingsActive && millis() - now >= 1500)
@@ -79,16 +80,14 @@ void loop()
     dateSettings();
     now = millis();
   }
-  if (timeSettingsActive && millis() - now >= 1500)
+  if (timeSettingsActive && millis() - now >= 1000)
   {
     timeSettings();
     now = millis();
   }
   if (ringMenuActive) ringMenu();
-
+  if (digitalRead(button_up) == HIGH && digitalRead(button_down) == HIGH && digitalRead(button_ok) == HIGH) allowButton = true;
 }
-
-
 
 void lcdClear()
 {
@@ -113,11 +112,22 @@ void pointerUp()
 {
   if (allowButton)
   {
-    allowButton = false;
-
     pointerIndex--;
+    Serial.println(pointerIndex);
+    
+    allowButton = false;
+    
+    if (mainDisplayActive)
+    {
+      pointerIndex = 0;
+      return;
+    }
 
-    if (mainDisplayActive) pointerIndex = 0;
+    if (settingsActive) if (pointerIndex < 0)
+    {
+      pointerIndex = 0;
+      return;
+    }
 
     if (dateSettingsActive)
     {
@@ -126,6 +136,7 @@ void pointerUp()
       if (pointerIndex == 1) changeDay(0);
       if (pointerIndex == 2) changeMonth(0);
       if (pointerIndex == 3) changeYear(0);
+      return;
     }
 
     if (timeSettingsActive)
@@ -134,8 +145,8 @@ void pointerUp()
       if (pointerIndex == 0) changeHours(0);
       if (pointerIndex == 1) changeMinutes(0);
       if (pointerIndex == 2) changeSeconds(0);
+      return;
     }
-    
   }
 }
 
@@ -143,13 +154,22 @@ void pointerDown()
 {
   if (allowButton)
   {
+    pointerIndex++;
+    Serial.println(pointerIndex);
+
     allowButton = false;
 
-    pointerIndex++;
+    if (mainDisplayActive)
+    {
+      pointerIndex = 0;
+      return;
+    }
 
-    if (mainDisplayActive) pointerIndex = 0;
-
-    if (settingsActive) if (pointerIndex > 3) pointerIndex = 3;
+    if (settingsActive) if (pointerIndex > 3)
+    {
+      pointerIndex = 3;
+      return;
+    }
 
     if (dateSettingsActive)
     {
@@ -158,14 +178,16 @@ void pointerDown()
       if (pointerIndex == 1) changeDay(1);
       if (pointerIndex == 2) changeMonth(1);
       if (pointerIndex == 3) changeYear(1);
+      return;
     }
 
     if (timeSettingsActive)
     {
       pointerIndex--;
-      if (pointerIndex == 0) changeHours(0);
-      if (pointerIndex == 1) changeMinutes(0);
-      if (pointerIndex == 2) changeSeconds(0);
+      if (pointerIndex == 0) changeHours(1);
+      if (pointerIndex == 1) changeMinutes(1);
+      if (pointerIndex == 2) changeSeconds(1);
+      return;
     }
   }
 }
@@ -175,11 +197,6 @@ void select()
 {
   if (allowButton)
   {
-    Serial.println(mainDisplayActive);
-    Serial.println(settingsActive);
-    Serial.println(dateSettingsActive);
-    Serial.println(timeSettingsActive);
-    Serial.println(ringMenuActive);
     lcdNotCleared = true;
 
     allowButton = false;
@@ -516,12 +533,12 @@ void changeYear(int num)
 
 void changeHours(int num)
 {
-  String _hours = rtc.getDateStr();
+  String _hours = rtc.getTimeStr();
   _hours.remove(2);
-  String _minutes = rtc.getDateStr();
+  String _minutes = rtc.getTimeStr();
   _minutes = _minutes.substring(3);
   _minutes.remove(2);
-  String _seconds = rtc.getDateStr();
+  String _seconds = rtc.getTimeStr();
   _seconds = _seconds.substring(6);
   if (num == 0) rtc.setTime(_hours.toInt() - 1, _minutes.toInt(), _seconds.toInt());
   if (num == 1) rtc.setTime(_hours.toInt() + 1, _minutes.toInt(), _seconds.toInt());
@@ -529,12 +546,12 @@ void changeHours(int num)
 
 void changeMinutes(int num)
 {
-  String _hours = rtc.getDateStr();
+  String _hours = rtc.getTimeStr();
   _hours.remove(2);
-  String _minutes = rtc.getDateStr();
+  String _minutes = rtc.getTimeStr();
   _minutes = _minutes.substring(3);
   _minutes.remove(2);
-  String _seconds = rtc.getDateStr();
+  String _seconds = rtc.getTimeStr();
   _seconds = _seconds.substring(6);
   if (num == 0) rtc.setTime(_hours.toInt(), _minutes.toInt() - 1, _seconds.toInt());
   if (num == 1) rtc.setTime(_hours.toInt(), _minutes.toInt() + 1, _seconds.toInt());
@@ -542,12 +559,12 @@ void changeMinutes(int num)
 
 void changeSeconds(int num)
 {
-  String _hours = rtc.getDateStr();
+  String _hours = rtc.getTimeStr();
   _hours.remove(2);
-  String _minutes = rtc.getDateStr();
+  String _minutes = rtc.getTimeStr();
   _minutes = _minutes.substring(3);
   _minutes.remove(2);
-  String _seconds = rtc.getDateStr();
+  String _seconds = rtc.getTimeStr();
   _seconds = _seconds.substring(6);
   if (num == 0) rtc.setTime(_hours.toInt(), _minutes.toInt(), _seconds.toInt() - 1);
   if (num == 1) rtc.setTime(_hours.toInt(), _minutes.toInt(), _seconds.toInt() + 1);

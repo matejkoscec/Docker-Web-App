@@ -58,7 +58,7 @@ void loop() {
 
   // if ten seconds have passed since your last connection,
   // then connect again and send data:
-  if (millis() - lastConnectionTime > postingInterval) httpRequest();
+  //if (millis() - lastConnectionTime > postingInterval) httpRequest();
 
 }
 

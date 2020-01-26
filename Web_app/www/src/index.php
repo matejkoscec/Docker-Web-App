@@ -19,7 +19,8 @@
 
     $_string = $_POST["_string"];
 
-    echo $_string;
+    //echo $_string;
+    echo "nigga";
 
     // $mysqli->query("DROP DATABASE IF EXISTS rtc_auth_data");
     $mysqli->query("CREATE DATABASE rtc_auth_data;");
@@ -30,10 +31,13 @@
 
     $mysqli->query("CREATE TABLE time_set ( option_name varchar(50) PRIMARY KEY NOT NULL, time_string TINYTEXT NOT NULL);");
 
-    $mysqli->query("INSERT INTO account (username, password, entry) VALUES ('master', 'master_password', 'master')");
-    $mysqli->query("INSERT INTO time_set (option_name, time_string) VALUES ('probno','\#048941098406798')");
+    if (!($mysqli->query("SELECT * FROM account WHERE username='master'")))
+    {
+        $mysqli->query("INSERT INTO account (username, password, entry) VALUES ('master', 'master_password', 'master')");
+    }
+    
 
-    echo '#0706575649834865482#';
+    echo '#rStandardno#';
 
     ?>
 </head>
