@@ -13,7 +13,7 @@
 //Ethernet shield
 
 int stringStart = 0;
-String _string = ""; //glavna var za komunikaciju sa serverom
+String _string = "";
 String temp_string = "";
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -28,7 +28,7 @@ EthernetClient client;
 char server[] = "192.168.1.11";
 
 unsigned long lastConnectionTime = 0;           // last time you connected to the server, in milliseconds
-const unsigned long postingInterval = 30000;     // delay between updates, in milliseconds
+const unsigned long postingInterval = 15000;     // delay between updates, in milliseconds
 unsigned long lastConnectionAttempt = 0;
 
 bool httpRequestActive = false;
@@ -119,18 +119,16 @@ void setup()
   lcd.createChar(0, arrowDown);
   lcd.createChar(1, arrowUp);
   lcd.clear();
-  
+
   rtc.begin();
 
-  //eepromManage("#c#");
-  
   time_set[0] = {
     0,
     "Standardno",
     "073008100815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
   };
   EEPROM.put(time_set[0].location, time_set[0]);
-  
+
   time_set[1] = {
     struct_size,
     "Standardno",
@@ -138,13 +136,8 @@ void setup()
   };
   EEPROM.put(time_set[1].location, time_set[1]);
   
-  time_set[2] = {
-    struct_size * 2,
-    "Test 1",
-    "073008100815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
-  };
-  EEPROM.put(time_set[2].location, time_set[2]);
-  
+  updateStruct();
+
   activeRingingSetup();
   getNextRingIndex();
 
@@ -161,32 +154,20 @@ void loop()
       getNextRingIndex();
       timeCheck();
     }
-    
+
     uiRefresh();
-  
+
     connectionCheck();
   }
-  
-  if (client.available())
+  else if (millis() - lastConnectionTime >= 1000) httpRequestActive = false;
+
+  readServerData();
+
+  if (millis() - lastConnectionTime > postingInterval)
   {
-    char c = client.read();
-    Serial.write(c);
-    
-    if (c == '#' && stringStart == 1) 
-    {
-      stringStart = 0;
-      temp_string += c;
-      Serial.println(temp_string);
-      temp_string = "";
-    }
-    else if (c == '#') stringStart = 1;
-    if (stringStart == 1) temp_string += c;
+    httpRequest();
+    httpRequestActive = true;
   }
-  
-  if (millis() - lastConnectionTime > postingInterval) httpRequest();
-  // if ten seconds have passed since your last connection,
-  // then connect again and send data
-  
 }
 
 
@@ -198,6 +179,28 @@ void loop()
 
 //----------------------------------------------------------------------------------------------------
 // Ethernet funkcije
+
+
+void readServerData()
+{
+  if (client.available())
+  {
+    char c = client.read();
+    Serial.write(c);
+
+    if (c == '#' && stringStart == 1)
+    {
+      stringStart = 0;
+      temp_string += c;
+      client.stop();
+      httpRequestActive = false;
+      eepromManage(temp_string);
+      temp_string = "";
+    }
+    else if (c == '#') stringStart = 1;
+    if (stringStart == 1) temp_string += c;
+  }
+}
 
 void ethernetSetup()
 {
@@ -214,7 +217,7 @@ void ethernetSetup()
     lcd.setCursor(0, 0);
     lcd.print("Povezivanje na mrezu");
     // Check for Ethernet hardware present
-    if (Ethernet.hardwareStatus() == EthernetNoHardware) 
+    if (Ethernet.hardwareStatus() == EthernetNoHardware)
     {
       Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
       lcd.setCursor(0, 1);
@@ -237,7 +240,7 @@ void ethernetSetup()
     lcd.setCursor(0, 1);
     lcd.print("adr.: ");
     lcd.print(Ethernet.localIP());
-  } 
+  }
   else
   {
     //Serial.print("  DHCP assigned IP ");
@@ -254,10 +257,10 @@ void ethernetSetup()
 
 void connectionCheck()
 {
-  if (millis() - lastConnectionAttempt > 20000)
+  if (millis() - lastConnectionAttempt > 30000)
   {
     lastConnectionAttempt = millis();
-    
+
     if (client.connect(server, 8080)) lcd.clear();
     else
     {
@@ -274,8 +277,6 @@ void httpRequest()
 
   if (client.connect(server, 8080))
   {
-    Serial.println("\n\nconnecting...");
-    // send the HTTP POST request:
     client.println("POST /index.php HTTP/1.1");
     client.println("Host: 192.168.1.11:8080");
     client.println("User-Agent: arduino-ethernet");
@@ -286,13 +287,10 @@ void httpRequest()
     client.println();
     client.println(_string);
     client.println();
-    
+
     lastConnectionTime = millis();
   }
-  else
-  {
-    Serial.println("connection failed");
-  }
+  else Serial.println("connection failed");
 }
 
 
@@ -303,11 +301,13 @@ void eepromManage(String string)
 {
   int write_index = getWriteIndex();
   Serial.println(write_index);
-  
+
   if (string[1] == 'c')
   {
     Serial.print("\nclear\n");
-    for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0);
+    for (int i = struct_size; i < EEPROM.length(); i++) EEPROM.write(i, 0);
+    EEPROM.get(0, time_get);
+    EEPROM.put(struct_size, time_get);
   }
 
   if (string[1] == 'd')
@@ -323,9 +323,9 @@ void eepromManage(String string)
       }
     }
   }
-  
-  if (string[1] == 'r')
-  {
+
+  /*if (string[1] == 'r')
+    {
     Serial.print("\nread\n");
     EEPROM.get(0, time_get);
     string.remove(string.length() - 1);
@@ -343,12 +343,12 @@ void eepromManage(String string)
       return;
     }
     _string ="_string=x";
-  }
-  
+    }*/
+
   if (string[1] == 'w')
   {
     if (write_index == NULL) return;
-    
+
     time_get.location = write_index;
     time_get.option_name = "";
     time_get.option_value = "";
@@ -363,20 +363,22 @@ void eepromManage(String string)
         if (t == 0) i++;
         t = 1;
       }
-      
+
       if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value += string[i];
       else if (t == 1)
       {
-        time_get.option_value += '\0';
         break;
       }
     }
-    
+
+    Serial.println(time_get.location);
+    Serial.println(time_get.option_name);
+    Serial.println(time_get.option_value);
     EEPROM.put(time_get.location, time_get);
   }
 
   if (string[1] == 'a')
-  { 
+  {
     time_get.location = 0;
     time_get.option_name = "";
     time_get.option_value = "";
@@ -388,10 +390,11 @@ void eepromManage(String string)
       else
       {
         time_get.option_name += '\0';
+        time_get.option_name.remove(time_get.option_name.length());
         if (t == 0) i++;
         t = 1;
       }
-      
+
       if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value += string[i];
       else if (t == 1)
       {
@@ -399,25 +402,32 @@ void eepromManage(String string)
         break;
       }
     }
-    
+
     EEPROM.put(time_get.location, time_get);
   }
-  
+
   updateStruct();
+  EEPROM.get(0, time_get);
   return;
 }
 
 
 void updateStruct()
 {
-  for (int i = 0; i < struct_size * max_records; i+= struct_size) EEPROM.get(i, time_set[i / struct_size]);
+  for (int i = 0; i < struct_size * max_records; i += struct_size)
+  {
+    EEPROM.get(i, time_set[i / struct_size]);
+    Serial.println(time_set[i / struct_size].location);
+    Serial.println(time_set[i / struct_size].option_name);
+    Serial.println(time_set[i / struct_size].option_value);
+  }
 }
 
 
 int getWriteIndex()
 {
   int temp = 0;
-  for (int i = struct_size; i < struct_size * max_records; i+= struct_size)
+  for (int i = struct_size; i < struct_size * max_records; i += struct_size)
   {
     EEPROM.get(i, time_get);
     if (time_get.location == 0)
@@ -434,12 +444,12 @@ int getWriteIndex()
 void moveRecords (int index)
 {
   updateStruct();
-  
+
   for (int i = index / struct_size; i < 100; i++)
   {
     if (time_set[i].location != 0) time_set[i].location -= struct_size;
   }
-  
+
   for (int i = index; i < struct_size * max_records; i += struct_size) EEPROM.put(i, time_set[i / struct_size + 1]);
 
   return;
@@ -460,7 +470,7 @@ void activeRingingSetup()
   String temp[time_get.option_value.length()];
   int j = 0;
   for (int i = 0; i < time_get.option_value.length(); ++i)
-  { 
+  {
     if (time_get.option_value[i] == '#') break;
 
     temp[i].concat(time_get.option_value[i]);
@@ -529,7 +539,7 @@ void uiRefresh()
     now = millis();
   }
   if (ringMenuActive) ringMenu();
-  
+
   if (digitalRead(button_up) == HIGH && digitalRead(button_down) == HIGH && digitalRead(button_ok) == HIGH) allowButton = true;
 }
 
@@ -546,7 +556,6 @@ void lcdClear()
 //Buttons
 void ring()
 {
-  Serial.println(digitalRead(button_ring));
   digitalWrite(4, HIGH);
   now = millis();
 }
@@ -557,18 +566,18 @@ void pointerUp()
   if (allowButton)
   {
     pointerIndex--;
-    
+
     allowButton = false;
-    
+
     if (mainDisplayActive)
     {
       pointerIndex = 0;
     }
 
     if (settingsActive) if (pointerIndex < 0)
-    {
-      pointerIndex = 0;
-    }
+      {
+        pointerIndex = 0;
+      }
 
     if (dateSettingsActive)
     {
@@ -613,9 +622,9 @@ void pointerDown()
     }
 
     if (settingsActive) if (pointerIndex > 3)
-    {
-      pointerIndex = 3;
-    }
+      {
+        pointerIndex = 3;
+      }
 
     if (dateSettingsActive)
     {
@@ -688,7 +697,6 @@ void select()
 
     if (ringMenuActive)
     {
-      if (pointerIndex == 0) pointerIndex = 2;
       if (pointerIndex == 2) EEPROM.put(0, time_get);
       if (pointerIndex == 3)
       {
@@ -697,8 +705,9 @@ void select()
         pointerIndex = 0;
         return;
       }
+      if (pointerIndex == 0) pointerIndex = 2;
     }
-    
+
     if (settingsActive)
     {
       settingsActive = false;
@@ -734,9 +743,9 @@ void initialStartup()
   lcd.setCursor(0, 1);
   lcd.print("     postavki...    ");
   delay(1000);
-  
+
   ethernetSetup();
-  
+
   client.stop();
   lcd.setCursor(0, 2);
   lcd.print(" Spajanje na server ");
@@ -785,7 +794,7 @@ void mainDisplay()
   lcd.setCursor(0, 1);
   lcd.print(rtc.getTimeStr());
   lcd.setCursor(0, 2);
-  lcd.print(time_get.option_name);
+  for (int i = 0; i < 20; i++) if (isAlphaNumeric(time_get.option_name[i]) || time_set[eepromIndex / struct_size].option_name[i] == ' ') lcd.print(time_get.option_name[i]);
   lcd.setCursor(0, 3);
   lcd.print("Zvoni u: ");
   if (ring_time_array[nextRingIndex] == 0) lcd.print("00");
@@ -890,7 +899,7 @@ void dateSettings()
 void timeSettings()
 {
   lcdClear();
-  
+
   if (pointerIndex == 0) lcd.setCursor(3, 0);
   if (pointerIndex == 1) lcd.setCursor(6, 0);
   if (pointerIndex == 2) lcd.setCursor(9, 0);
@@ -917,40 +926,45 @@ void ringMenu()
   lcdClear();
 
   EEPROM.get(eepromIndex, time_get);
+
   if (time_get.location == 0)
   {
     eepromIndex -= struct_size;
     EEPROM.get(eepromIndex, time_get);
   }
-  
+
   lcd.setCursor(0, 0);
   lcd.print("<");
-  time_get.option_name.remove(18);
-  lcd.print(time_get.option_name);
-  int whiteSpaces = 18 - time_get.option_name.length();
-  for (int i = 0; i < whiteSpaces; i++) lcd.print(" ");
+  int len = 0;
+  for (int i = 0; i < 20; i++)
+  {
+    len++;
+    if (!(isAlphaNumeric(time_set[eepromIndex / struct_size].option_name[i]) || time_set[eepromIndex / struct_size].option_name[i] == ' ')) break;
+  }
+  time_set[eepromIndex / struct_size].option_name.remove(len - 1);
+  lcd.print(time_set[eepromIndex / struct_size].option_name);
   lcd.print(">");
-  EEPROM.get(eepromIndex, time_get);
-    
+  int whiteSpaces = 18 - len;
+  for (int i = 0; i < whiteSpaces; i++) lcd.print(" ");
+
   lcd.setCursor(0, 1);
-  
-  lcd.print(time_get.option_value[0]);
-  lcd.print(time_get.option_value[1]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[0]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[1]);
   lcd.print(":");
-  lcd.print(time_get.option_value[2]);
-  lcd.print(time_get.option_value[3]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[2]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[3]);
   lcd.print("-");
-  lcd.print(time_get.option_value[4]);
-  lcd.print(time_get.option_value[5]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[4]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[5]);
   lcd.print(":");
-  lcd.print(time_get.option_value[6]);
-  lcd.print(time_get.option_value[7]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[6]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[7]);
   lcd.print("-");
-  lcd.print(time_get.option_value[8]);
-  lcd.print(time_get.option_value[9]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[8]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[9]);
   lcd.print(":");
-  lcd.print(time_get.option_value[10]);
-  lcd.print(time_get.option_value[11]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[10]);
+  lcd.print(time_set[eepromIndex / struct_size].option_value[11]);
   lcd.print("-..");
 
   if (pointerIndex == 1) pointerIndex = 2;
@@ -996,7 +1010,7 @@ String getDOW()
 String getDOWFull()
 {
   String DOW = rtc.getDOWStr();
-  
+
   if (DOW == "Monday") return "Ponedjeljak";
   if (DOW == "Tuesday") return "Utorak";
   if (DOW == "Wednesday") return "Srijeda";
