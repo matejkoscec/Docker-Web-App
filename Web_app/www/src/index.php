@@ -17,11 +17,6 @@
     }
     echo $mysqli->host_info . "<br>";
 
-    $_string = $_POST["_string"];
-
-    //echo $_string;
-    echo "nigga";
-
     // $mysqli->query("DROP DATABASE IF EXISTS rtc_auth_data");
     $mysqli->query("CREATE DATABASE rtc_auth_data;");
 
@@ -36,8 +31,8 @@
         $mysqli->query("INSERT INTO account (username, password, entry) VALUES ('master', 'master_password', 'master')");
     }
     
-
-    echo '#rStandardno#';
+    //echo '#c#';
+    //echo '#wtest 1?073008100815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#';
 
     ?>
 </head>
