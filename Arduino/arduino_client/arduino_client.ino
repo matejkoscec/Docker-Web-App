@@ -32,6 +32,7 @@ const unsigned long postingInterval = 15000;     // delay between updates, in mi
 unsigned long lastConnectionAttempt = 0;
 
 bool httpRequestActive = false;
+bool serverAvailable = false;
 
 
 //EEPROM
@@ -161,12 +162,15 @@ void loop()
   }
   else if (millis() - lastConnectionTime >= 1000) httpRequestActive = false;
 
-  readServerData();
-
-  if (millis() - lastConnectionTime > postingInterval)
+  if (serverAvailable)
   {
-    httpRequest();
-    httpRequestActive = true;
+    readServerData();
+  
+    if (millis() - lastConnectionTime > postingInterval)
+    {
+      httpRequest();
+      httpRequestActive = true;
+    }
   }
 }
 
@@ -261,11 +265,16 @@ void connectionCheck()
   {
     lastConnectionAttempt = millis();
 
-    if (client.connect(server, 8080)) lcd.clear();
+    if (client.connect(server, 8080))
+    {
+      lcd.clear();
+      serverAvailable = true;
+    }
     else
     {
       lcd.setCursor(12, 1);
       lcd.print("!Server");
+      serverAvailable = false;
     }
   }
 }
