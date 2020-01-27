@@ -272,8 +272,6 @@ void connectionCheck()
     }
     else
     {
-      lcd.setCursor(12, 1);
-      lcd.print("!Server");
       serverAvailable = false;
     }
   }
@@ -549,7 +547,7 @@ void uiRefresh()
   }
   if (ringMenuActive) ringMenu();
 
-  if (digitalRead(button_up) == HIGH && digitalRead(button_down) == HIGH && digitalRead(button_ok) == HIGH) allowButton = true;
+  if (digitalRead(button_up) == HIGH && digitalRead(button_down) == HIGH && digitalRead(button_ok) == HIGH && millis() - now >= 100) allowButton = true;
 }
 
 void lcdClear()
@@ -572,6 +570,8 @@ void ring()
 
 void pointerUp()
 {
+  now = millis();
+  
   if (allowButton)
   {
     pointerIndex--;
@@ -619,6 +619,8 @@ void pointerUp()
 
 void pointerDown()
 {
+  now = millis();
+  
   if (allowButton)
   {
     pointerIndex++;
@@ -666,6 +668,8 @@ void pointerDown()
 
 void select()
 {
+  now = millis();
+  
   if (allowButton)
   {
     lcdNotCleared = true;
@@ -762,6 +766,7 @@ void initialStartup()
   {
     if (client.connect(server, 8080))
     {
+      serverAvailable = true;
       lcd.setCursor(0, 2);
       lcd.print("  Spojen na server  ");
       lcd.setCursor(0, 3);
@@ -802,6 +807,9 @@ void mainDisplay()
   lcd.print(".");
   lcd.setCursor(0, 1);
   lcd.print(rtc.getTimeStr());
+  lcd.setCursor(12, 1);
+  if (serverAvailable) lcd.print("       ");
+  else lcd.print("!Server");
   lcd.setCursor(0, 2);
   for (int i = 0; i < 20; i++) if (isAlphaNumeric(time_get.option_name[i]) || time_set[eepromIndex / struct_size].option_name[i] == ' ') lcd.print(time_get.option_name[i]);
   lcd.setCursor(0, 3);
