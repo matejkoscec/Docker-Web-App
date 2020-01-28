@@ -157,11 +157,10 @@ void loop()
     }
 
     uiRefresh();
-
-    connectionCheck();
   }
   else if (millis() - lastConnectionTime >= 1000) httpRequestActive = false;
 
+  connectionCheck();
   if (serverAvailable)
   {
     readServerData();
