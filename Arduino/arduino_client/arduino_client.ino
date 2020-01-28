@@ -44,7 +44,7 @@ struct time_
   String option_value;
 };
 
-int struct_size = sizeof(time_);
+uint8_t struct_size = sizeof(time_);
 
 const int max_records = 100;
 time_ time_set[max_records], time_get;
@@ -122,7 +122,7 @@ void setup()
   lcd.clear();
 
   rtc.begin();
-
+  
   time_set[0] = {
     0,
     "Standardno",
@@ -312,14 +312,14 @@ void eepromManage(String string)
   if (string[1] == 'c')
   {
     Serial.print("\nclear\n");
-    for (int i = struct_size; i < EEPROM.length(); i++) EEPROM.write(i, 0);
-    EEPROM.get(0, time_get);
-    EEPROM.put(struct_size, time_get);
+    for (int i = struct_size * 2; i < EEPROM.length(); i++) EEPROM.write(i, 0);
+    setup();
   }
 
   if (string[1] == 'd')
   {
     Serial.print("\ndelete\n");
+    string.remove(string.length() - 1);
     for (int i = 0; i < struct_size * max_records; i += struct_size)
     {
       EEPROM.get(i, time_get);
@@ -357,55 +357,48 @@ void eepromManage(String string)
     if (write_index == NULL) return;
 
     time_get.location = write_index;
-    time_get.option_name = "";
-    time_get.option_value = "";
     Serial.print("\nwrite\n");
     int t = 0;
     for (int i = 2; i < string.length(); i++)
     {
-      if (t == 0 && string[i] != '?') time_get.option_name += string[i];
+      if (t == 0 && string[i] != '?') time_get.option_name.concat(string[i]);
       else
       {
-        time_get.option_name += '\0';
+        time_get.option_name.concat('\0');
         if (t == 0) i++;
         t = 1;
       }
 
-      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value += string[i];
+      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value.concat(string[i]);
       else if (t == 1)
       {
         break;
       }
     }
 
-    Serial.println(time_get.location);
-    Serial.println(time_get.option_name);
-    Serial.println(time_get.option_value);
     EEPROM.put(time_get.location, time_get);
   }
 
   if (string[1] == 'a')
   {
+    if (write_index == NULL) return;
+
     time_get.location = 0;
-    time_get.option_name = "";
-    time_get.option_value = "";
-    Serial.print("\nactive\n");
+    Serial.print("\active\n");
     int t = 0;
     for (int i = 2; i < string.length(); i++)
     {
-      if (t == 0 && string[i] != '?') time_get.option_name += string[i];
+      if (t == 0 && string[i] != '?') time_get.option_name.concat(string[i]);
       else
       {
-        time_get.option_name += '\0';
-        time_get.option_name.remove(time_get.option_name.length());
+        time_get.option_name.concat('\0');
         if (t == 0) i++;
         t = 1;
       }
 
-      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value += string[i];
+      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value.concat(string[i]);
       else if (t == 1)
       {
-        time_get.option_value += '\0';
         break;
       }
     }
@@ -424,9 +417,9 @@ void updateStruct()
   for (int i = 0; i < struct_size * max_records; i += struct_size)
   {
     EEPROM.get(i, time_set[i / struct_size]);
-    Serial.println(time_set[i / struct_size].location);
-    Serial.println(time_set[i / struct_size].option_name);
-    Serial.println(time_set[i / struct_size].option_value);
+    //Serial.println(time_set[i / struct_size].location);
+    //Serial.println(time_set[i / struct_size].option_name);
+    //Serial.println(time_set[i / struct_size].option_value);
   }
 }
 
@@ -824,6 +817,7 @@ void mainDisplay()
     lcd.print(ring_time_array[nextRingIndex + 1]);
   }
   else lcd.print(ring_time_array[nextRingIndex + 1]);
+  lcd.print("    ");
 }
 
 
