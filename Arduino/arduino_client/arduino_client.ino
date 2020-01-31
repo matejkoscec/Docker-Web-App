@@ -126,20 +126,21 @@ void setup()
   time_set[0] = {
     0,
     "Standardno",
-    "073008100815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
+    "07300815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
   };
   EEPROM.put(time_set[0].location, time_set[0]);
 
   time_set[1] = {
     struct_size,
     "Standardno",
-    "073008100815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
+    "07300815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
   };
   EEPROM.put(time_set[1].location, time_set[1]);
   
   updateStruct();
 
   activeRingingSetup();
+  for (int i = 0; i < 200; i++) Serial.println(ring_time_array[i]);
   getNextRingIndex();
 
   initialStartup();
@@ -485,13 +486,14 @@ void activeRingingSetup()
 void getNextRingIndex()
 {
   _time = rtc.getTime();
-  for (int i = 0; i < 400; i += 2)
+  for (int i = 0; i < 200; i += 2)
   {
     if ((ring_time_array[i] >= _time.hour && ring_time_array[i + 1] > _time.min) || ring_time_array[i] > _time.hour)
     {
       nextRingIndex = i;
-      break;
+      return;
     }
+    nextRingIndex = 0;
   }
 }
 
@@ -503,10 +505,13 @@ void timeCheck()
   {
     if (_time.hour == ring_time_array[i] && _time.min == ring_time_array[i + 1] && _time.sec < 1)
     {
-      nextRingIndex = i + 2;
-      long unsigned previousTime = millis();
-      while (millis() - previousTime < 3000) digitalWrite(relay_signal_pin, HIGH);
-      while (millis() - previousTime < 6000) digitalWrite(relay_signal_pin, LOW);
+      if (ring_time_array[i] != 0 && ring_time_array[i + 1] != 0 && ring_time_array[i + 2] != 0 && ring_time_array[i + 3] != 0)
+      {
+        nextRingIndex = i + 2;
+        long unsigned previousTime = millis();
+        while (millis() - previousTime < 3000) digitalWrite(relay_signal_pin, HIGH);
+        while (millis() - previousTime < 6000) digitalWrite(relay_signal_pin, LOW);
+      }
     }
   }
 }
@@ -645,6 +650,7 @@ void pointerDown()
         pointerIndex = 0;
         eepromIndex += struct_size;
       }
+      if (pointerIndex >= 4) pointerIndex = 3;
     }
 
     if (timeSettingsActive)
@@ -805,7 +811,7 @@ void mainDisplay()
   lcd.setCursor(0, 2);
   for (int i = 0; i < 20; i++) if (isAlphaNumeric(time_get.option_name[i]) || time_set[eepromIndex / struct_size].option_name[i] == ' ') lcd.print(time_get.option_name[i]);
   lcd.setCursor(0, 3);
-  lcd.print("Zvoni u: ");
+  lcd.print("Zvono: ");
   if (ring_time_array[nextRingIndex] == 0) lcd.print("00");
   else lcd.print(ring_time_array[nextRingIndex]);
   lcd.print(":");
@@ -816,7 +822,13 @@ void mainDisplay()
     lcd.print(ring_time_array[nextRingIndex + 1]);
   }
   else lcd.print(ring_time_array[nextRingIndex + 1]);
-  lcd.print("    ");
+  lcd.print(" (");
+  _time = rtc.getTime();
+  int minutes;
+  if (ring_time_array[nextRingIndex] < _time.hour) minutes = (24 - _time.hour) * 60 - 60 + (60 - _time.min) + ring_time_array[nextRingIndex] * 60 + ring_time_array[nextRingIndex + 1];
+  else minutes = (ring_time_array[nextRingIndex] - _time.hour) * 60 + (ring_time_array[nextRingIndex + 1] - _time.min);
+  lcd.print(minutes);
+  lcd.print("min)");
 }
 
 
