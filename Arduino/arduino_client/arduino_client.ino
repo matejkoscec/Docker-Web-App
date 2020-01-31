@@ -828,7 +828,7 @@ void mainDisplay()
   if (ring_time_array[nextRingIndex] < _time.hour) minutes = (24 - _time.hour) * 60 - 60 + (60 - _time.min) + ring_time_array[nextRingIndex] * 60 + ring_time_array[nextRingIndex + 1];
   else minutes = (ring_time_array[nextRingIndex] - _time.hour) * 60 + (ring_time_array[nextRingIndex + 1] - _time.min);
   lcd.print(minutes);
-  lcd.print("min)");
+  lcd.print("min) ");
 }
 
 
