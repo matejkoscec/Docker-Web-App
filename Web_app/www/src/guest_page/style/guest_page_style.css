@@ -1,0 +1,97 @@
+*
+{
+    margin: 0;
+    padding: 0;
+}
+
+.wrapper
+{
+    margin: auto;
+    width: 1000px;
+    padding-top: 100px;
+}
+
+img
+{
+    width: auto;
+    height: 150px;
+    display: block;
+    margin: auto;
+    margin-bottom: 70px;
+}
+
+h1
+{
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 32px;
+    font-weight: lighter;
+    text-align: center;
+}
+
+h2
+{
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+}
+
+h3
+{
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+button
+{
+	background-color: #599bb3;
+	border-radius: 10px;
+	display: block;
+	cursor: pointer;
+	color: #ffffff;
+	font-family: Arial;
+	font-size: 20px;
+	font-weight: bold;
+	padding: 15px 30px;
+    text-decoration: none;
+    margin: auto;
+}
+
+button:hover
+{
+	background-color: #408c99;
+}
+
+button:active 
+{
+	position: relative;
+	top: 1px;
+}
+
+p
+{
+    text-align: center;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: lighter;
+}
+
+a
+{
+    text-align: center;
+    text-decoration: underline;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: lighter;
+}
+
+table
+{
+    display: inline-block;
+    width: 200px;
+    
+}

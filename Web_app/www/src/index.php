@@ -11,7 +11,6 @@
 
 <body>
     <div class="wrapper">
-        <br><br><br>
         <img src="img/tsrb_logo.png">
         <form action="page_scripts/login.php" method="post" id="login">
             <h2>Korisničko ime:</h2>
@@ -23,14 +22,14 @@
 
         <?php
 
-            if (isset($_GET['error'])) {
+        if (isset($_GET['error'])) {
 
-                if ($_GET['error'] == "emptyfields") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Popunite sva polja.</p><br>';
-                if ($_GET['error'] == "sqlerror") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Greška u bazi podataka.</p><br>';
-                if ($_GET['error'] == "wrongpwd") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Lozinka je neispravna.</p><br>';
-                if ($_GET['error'] == "nouser") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Korisničko ime ne postoji.</p><br>';
+            if ($_GET['error'] == "emptyfields") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Popunite sva polja.</p><br>';
+            if ($_GET['error'] == "sqlerror") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Greška u bazi podataka.</p><br>';
+            if ($_GET['error'] == "wrongpwd") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Lozinka je neispravna.</p><br>';
+            if ($_GET['error'] == "nouser") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Korisničko ime ne postoji.</p><br>';
 
-            }
+        }
 
         ?>
 
