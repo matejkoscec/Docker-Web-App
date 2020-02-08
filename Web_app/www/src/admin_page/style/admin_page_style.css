@@ -9,6 +9,16 @@
     margin: auto;
     width: 1000px;
     padding-top: 100px;
+    background-color: linen;
+}
+
+.manual_setup
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    float: left;
+    width: 750px;
 }
 
 h3
@@ -29,8 +39,78 @@ input
     text-align: center;
 }
 
+.time_setup
+{
+    margin: 0 50px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.select
+{
+	background-color: #599bb3;
+	border-radius: 10px;
+	display: inline-block;
+	cursor: pointer;
+	color: #ffffff;
+	font-family: Arial;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 5px 10px;
+    text-decoration: none;
+    margin: auto;
+}
+
+.select:hover
+{
+	background-color: #408c99;
+}
+
+.select:active 
+{
+	position: relative;
+	top: 1px;
+}
+
+.option_name
+{
+    display: block;
+    width: 200px;
+    height: 20px;
+    text-align: left;
+}
+
+.vertical_menu
+{
+    float: left;
+    width: 400px;
+    height: 150px;
+    overflow-y: auto;
+}
+
+.vm_option
+{
+    display: block;
+    width: 383px;
+    height: 40px;
+    text-align: left;
+}
+
+.menus
+{
+    width: 480px;
+    float: left;
+}
+
+.time_display
+{
+    width: 520px;
+    float: right;
+}
+
 table
 {
     display: inline-block;
+    width: 200px;
     border: 1px solid black;
 }

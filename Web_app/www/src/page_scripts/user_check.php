@@ -12,7 +12,7 @@ $sql = "SELECT user FROM accounts WHERE user=?";
 $stmt = mysqli_stmt_init($conn);
 
 if (!mysqli_stmt_prepare($stmt, $sql)) {
-    header("Location: ../account_creation_page/account_creation.php?error=sqlerror");
+    header("Location: ../user_page/user.php?error=sqlerror");
     exit();
 } else {
 
