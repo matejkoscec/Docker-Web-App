@@ -1,4 +1,4 @@
-<table>
+<table class="time-display-table">
     <tr>
         <td colspan="2" style="text-align: center;">Jutarnja smjena</td>
     </tr>
@@ -46,14 +46,14 @@
             echo ($i / 8 + 1) . '. sat: </td><td>';
         }
 
-        echo $row['time_string'][$i];
+        if ($allowCalc) echo $row['time_string'][$i];
     }
 
     ?>
 
 </table>
 
-<table>
+<table class="time-display-table">
     <tr>
         <td colspan="2" style="text-align: center;">Popodnevna smjena</td>
     </tr>
