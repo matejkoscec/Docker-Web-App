@@ -1,9 +1,11 @@
 <table class="time-display-table">
     <tr>
-        <td colspan="2" style="text-align: center;">Jutarnja smjena</td>
+        <?php if (isset($row)) echo '<td colspan="2" style="text-align: center;">Jutarnja smjena</td>' ?>
     </tr>
     <?php
 
+    echo '<p>' . $row['option_name'] . '</p>';
+    echo '<br>';
     echo '<tr><td>';
     $allowCalc = true;
     for ($i = 0; $i < strlen($row['time_string']) / 2 - 1; $i++) {
@@ -42,7 +44,7 @@
                     echo '<tr><td>';
                 }
             }
-            
+
             echo ($i / 8 + 1) . '. sat: </td><td>';
         }
 
@@ -55,7 +57,7 @@
 
 <table class="time-display-table">
     <tr>
-        <td colspan="2" style="text-align: center;">Popodnevna smjena</td>
+        <?php if (isset($row)) echo '<td colspan="2" style="text-align: center;">Popodnevna smjena</td>' ?>
     </tr>
     <?php
 
@@ -98,8 +100,8 @@
                     echo '<tr><td>';
                 }
             }
-            
-            echo (int)($i / 8 - (strlen($row['time_string']) / 16) + 1) . '. sat: </td><td>';
+
+            echo (int) ($i / 8 - (strlen($row['time_string']) / 16) + 1) . '. sat: </td><td>';
         }
 
         echo $row['time_string'][$i];

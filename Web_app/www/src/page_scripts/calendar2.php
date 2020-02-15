@@ -2,11 +2,11 @@
 
 date_default_timezone_set('Europe/Zagreb');
 
-if (isset($_GET['ym1'])) {
-    $ym = $_GET['ym1'];
-    $_SESSION['time1'] = $ym;
+if (isset($_GET['ym2'])) {
+    $ym = $_GET['ym2'];
+    $_SESSION['time2'] = $ym;
 } else {
-    $ym = date('Y-m', strtotime($_SESSION['time1'], "-01"));
+    $ym = date('Y-m', strtotime($_SESSION['time2'], "-01"));
 }
 
 $timeStamp = strtotime($ym, "-01");
