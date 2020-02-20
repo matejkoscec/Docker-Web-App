@@ -4,28 +4,6 @@ session_start();
 
 require '../page_scripts/dbh.php';
 
-/*if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
-    if ($_SESSION['option-name'] != '' && $_SESSION['time-string'] != '') {
-
-        $optionName = $_SESSION['option-name'];
-        $timeString = $_SESSION['time-string'];
-        if (isset($_POST['db-save-1'])) $sql = "INSERT INTO time_set (option_name, time_string) VALUES (?, ?);";
-        if (isset($_POST['eeprom-save-1'])) $sql = "INSERT INTO eeprom_mirror (option_name, time_string) VALUES (?, ?);";
-
-        $stmt = mysqli_stmt_init($conn);
-
-        if (!mysqli_stmt_prepare($stmt, $sql)) {
-            header("Location: ./admin.php?error=sqlerror");
-            exit();
-        } else {
-            mysqli_stmt_bind_param($stmt, "ss", $optionName, $timeString);
-            mysqli_stmt_execute($stmt);
-        }
-        header("Location: ./admin.php");
-        exit();
-    }
-}*/
-
 if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
 
     $optionName = $_POST['opn'];
@@ -68,15 +46,66 @@ if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
         }
     }
 
-    if (isset($_POST['db-save'])) $sql = "INSERT INTO time_set (option_name, time_string) VALUES (?, ?);";
-    if (isset($_POST['eeprom-save'])) $sql = "INSERT INTO eeprom_mirror (option_name, time_string) VALUES (?, ?);";
+    $tempString = '';
+    for ($i = 1; $i <= 7; $i++) {
+        if (isset($_POST['u' . $i])) $tempString = $tempString . '1';
+        else $tempString = $tempString . '0';
+    }
+    for ($i = 1; $i <= 7; $i++) {
+        if (isset($_POST['p' . $i])) $tempString = $tempString . '1';
+        else $tempString = $tempString . '0';
+    }
+
+    $_SESSION['ring-enable'] = $tempString;
+
+    if (isset($_POST['db-save'])) $sql = "INSERT INTO time_set (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+    if (isset($_POST['eeprom-save'])) $sql = "INSERT INTO eeprom_mirror (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
     $stmt = mysqli_stmt_init($conn);
 
     if (!mysqli_stmt_prepare($stmt, $sql)) {
         header("Location: ./admin.php?error=sqlerror");
         exit();
     } else {
-        mysqli_stmt_bind_param($stmt, "ss", $_SESSION['option-name'], $_SESSION['time-string']);
+        mysqli_stmt_bind_param($stmt, "sss", $_SESSION['option-name'], $_SESSION['time-string'], $_SESSION['ring-enable']);
+        mysqli_stmt_execute($stmt);
+    }
+    header("Location: ./admin.php");
+    exit();
+}
+
+if (isset($_POST['active-save'])) {
+    $sql = "DELETE FROM active_setting WHERE id = 1";
+    mysqli_query($conn, $sql);
+    $sql = "INSERT INTO active_setting (id, option_name, time_string, ring_enable) VALUES (1, ?, ?, ?);";
+    $stmt = mysqli_stmt_init($conn);
+
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        header("Location: ./admin.php?error=sqlerror");
+        exit();
+    } else {
+        mysqli_stmt_bind_param($stmt, "sss", $_SESSION['to-be-set-active']['option_name'], $_SESSION['to-be-set-active']['time_string'], $_SESSION['to-be-set-active']['ring_enable']);
+        mysqli_stmt_execute($stmt);
+    }
+    header("Location: ./admin.php");
+    exit();
+}
+
+if (isset($_POST['delete'])) {
+
+    if (isset($_SESSION['selected-button-value-1'])) $sql = "DELETE FROM time_set WHERE option_name = ?";
+    if (isset($_SESSION['selected-button-value-2'])) $sql = "DELETE FROM eeprom_mirror WHERE option_name = ?";
+    if (isset($_SESSION['selected-button-value-3'])) $sql = "DELETE FROM settings_by_date WHERE date_active = ?";
+    if (isset($_SESSION['selected-button-value-4'])) $sql = "DELETE FROM active_setting WHERE option_name = ?";
+    $stmt = mysqli_stmt_init($conn);
+
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        header("Location: ./admin.php?error=sqlerror");
+        exit();
+    } else {
+        if (isset($_SESSION['selected-button-value-1'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['selected-button-value-1']);
+        if (isset($_SESSION['selected-button-value-2'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['selected-button-value-2']);
+        if (isset($_SESSION['selected-button-value-3'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['date-to-parse']);
+        if (isset($_SESSION['selected-button-value-4'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['selected-button-value-4']);
         mysqli_stmt_execute($stmt);
     }
     header("Location: ./admin.php");

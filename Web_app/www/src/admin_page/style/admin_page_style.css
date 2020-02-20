@@ -63,6 +63,11 @@ header {
     flex-direction: row;
 }
 
+#auto-time-set {
+    display: flex;
+    flex-direction: row;
+}
+
 .settings {
     margin: auto;
 }
