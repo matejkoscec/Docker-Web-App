@@ -1,8 +1,11 @@
 <form action="save_to_db.php" method="post" id="time_set">
     <?php
-    $i = 0;
 
-    if (!empty($row['time_string'])) {
+    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
+        $optionName = $_SESSION['to-be-set-active']['option_name'];
+    } else $optionName = $_SESSION['option-name'];
+
+    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
         $pm = substr($row['time_string'], -(int) (strlen($row['time_string']) / 2) - 1);
         $am = $row['time_string'];
         $am = str_replace($pm, '', $am);
@@ -12,15 +15,11 @@
         $am = str_replace($pm, '', $am);
     }
 
+    $i = 0;
+
     ?>
     <h2>Naziv postavke</h2>
-    <input class="option-name" type="text" maxlength="50" name="opn" placeholder="<?php
-                                                                                    if (isset($_SESSION['selected-button-value-1'])) echo $_SESSION['selected-button-value-1'];
-                                                                                    else if (isset($_SESSION['selected-button-value-2'])) echo $_SESSION['selected-button-value-2'];
-                                                                                    else if (isset($_SESSION['selected-button-value-3'])) echo $_SESSION['selected-button-value-3'];
-                                                                                    else if (isset($_SESSION['selected-button-value-4'])) echo $_SESSION['selected-button-value-4'];
-                                                                                    else echo $_SESSION['option-name'];
-                                                                                    ?>">
+    <input class="option-name" type="text" maxlength="50" name="opn" placeholder="<?php echo $optionName; ?>">
     <br>
     <table class="time-setup">
         <th>Jutarnja smjena</th>

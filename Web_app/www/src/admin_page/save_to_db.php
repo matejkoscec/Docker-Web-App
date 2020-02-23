@@ -114,6 +114,20 @@ if (isset($_POST['delete'])) {
 
 
 if (isset($_POST['auto-gen'])) {
+
+    $_SESSION['selected-button-value-1'] = NULL;
+    $_SESSION['selected-button-value-2'] = NULL;
+    $_SESSION['selected-button-value-3'] = NULL;
+    $_SESSION['selected-button-value-4'] = NULL;
+
+    if (
+        isset($_SESSION['option-name']) && isset($_SESSION['option-name']) && isset($_SESSION['time-string']) && isset($_SESSION['sh']) && isset($_SESSION['sm'])
+        && isset($_SESSION['len']) && isset($_SESSION['break']) && isset($_SESSION['l-break']) && isset($_SESSION['s-break'])
+    ) {
+        header('Location: ./admin.php?a nega');
+        exit();
+    }
+
     $_SESSION['name'] = $_POST['name'];
     $_SESSION['sh'] = $_POST['start-hours'];
     $_SESSION['sm'] = $_POST['start-minutes'];
@@ -130,6 +144,7 @@ if (isset($_POST['auto-gen'])) {
         header('Location: ./admin.php?error=emptyfields');
         exit();
     } else {
+
         for ($i = 0; $i < 14; $i++) {
             $addMinutes = $_SESSION['len'];
             $newMinutes = $timeString[$i * 8 + 2] * 10 + $timeString[$i * 8 + 3] + $addMinutes;
@@ -167,3 +182,6 @@ if (isset($_POST['auto-gen'])) {
     header("Location: ./admin.php");
     exit();
 }
+
+header("Location: ./admin.php");
+exit();

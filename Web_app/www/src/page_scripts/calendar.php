@@ -16,7 +16,7 @@ if ($timeStamp === false) {
 
 $today = date('Y-m-d', time());
 
-$htmlTitle = date('Y-m', $timeStamp);
+$_SESSION['calendar-date'] = date('Y-m', $timeStamp);
 
 $prev = date('Y-m', mktime(0, 0, 0, date('m', $timeStamp) - 1, 1, date('Y', $timeStamp)));
 $next = date('Y-m', mktime(0, 0, 0, date('m', $timeStamp) + 1, 1, date('Y', $timeStamp)));
@@ -55,7 +55,7 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
 ?>
 
 <div class="calendar">
-    <h3><a href="?ym<?php echo $_SESSION['calendar-id'] ?>=<?php echo $prev; ?>">&lt; </a><?php echo $htmlTitle; ?> <a href="?ym<?php echo $_SESSION['calendar-id'] ?>=<?php echo $next; ?>">&gt;</a></h3>
+    <h3><a href="?ym<?php echo $_SESSION['calendar-id'] ?>=<?php echo $prev; ?>">&lt; </a><?php echo $_SESSION['calendar-date']; ?> <a href="?ym<?php echo $_SESSION['calendar-id'] ?>=<?php echo $next; ?>">&gt;</a></h3>
     <table>
         <tr>
             <th>Pon</th>

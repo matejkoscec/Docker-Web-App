@@ -18,6 +18,10 @@ if (isset($_POST['form-reset'])) {
     $_SESSION['break'] = NULL;
     $_SESSION['l-break'] = NULL;
     $_SESSION['s-break'] = NULL;
+    $_SESSION['selected-button-value-1'] = NULL;
+    $_SESSION['selected-button-value-2'] = NULL;
+    $_SESSION['selected-button-value-3'] = NULL;
+    $_SESSION['selected-button-value-4'] = NULL;
 }
 
 ?>
@@ -61,8 +65,11 @@ if (isset($_POST['form-reset'])) {
                     <button class="select" type="submit" form="auto-time-set" name="auto-gen">Generiraj</button>
                 </div>
             </form>
+            <p><?php if (isset($_GET['error'])) if ($_GET['error'] == 'emptyfields') echo 'Popunite sva polja.'; ?></p>
         </section>
-        <button id="baton" onclick="document.getElementById('baton').style.background = 'green';">Aaaaaaa</button>
+
+        <button id="baton" onclick="document.getElementById('baton').style.background = 'green';">Mo bamba</button>
+
         <section class="section2">
             <div class="menus">
                 <form method="post" id="menu">
@@ -183,7 +190,7 @@ if (isset($_POST['form-reset'])) {
                             if ($_SESSION['selected-button-value-3'] < 10) {
                                 if (strlen($_SESSION['selected-button-value-3']) < 2) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
                             }
-                            $dateToParse = $htmlTitle . '-' . $_SESSION['selected-button-value-3'];
+                            $dateToParse = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
                             $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $dateToParse . '\'';
                             $_SESSION['date-to-parse'] = $dateToParse;
                         }
