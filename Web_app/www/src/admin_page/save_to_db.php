@@ -28,6 +28,11 @@ if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
         }
     }
 
+    if (!(isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4']))) {
+        checkRecords();
+    } else $_SESSION['option-name'] = $_SESSION['to-be-set-active']['option_name'];
+
+
     $tempString = '';
     for ($i = 0; $i < strlen($timeString); $i++) {
         if ($timeString[$i] == '.') {
@@ -58,8 +63,15 @@ if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
 
     $_SESSION['ring-enable'] = $tempString;
 
-    if (isset($_POST['db-save'])) $sql = "INSERT INTO time_set (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
-    if (isset($_POST['eeprom-save'])) $sql = "INSERT INTO eeprom_mirror (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
+        if (isset($_SESSION['selected-button-value-1'])) $sql = "UPDATE time_set SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
+        if (isset($_SESSION['selected-button-value-2'])) $sql = "UPDATE eeprom_mirror SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
+        if (isset($_SESSION['selected-button-value-3'])) $sql = "UPDATE settings_by_date SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
+        if (isset($_SESSION['selected-button-value-4'])) $sql = "UPDATE active_setting SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
+    } else {
+        if (isset($_POST['db-save'])) $sql = "INSERT INTO time_set (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+        if (isset($_POST['eeprom-save'])) $sql = "INSERT INTO eeprom_mirror (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+    }
     $stmt = mysqli_stmt_init($conn);
 
     if (!mysqli_stmt_prepare($stmt, $sql)) {
@@ -92,6 +104,8 @@ if (isset($_POST['active-save'])) {
 
 if (isset($_POST['delete'])) {
 
+    $_SESSION['to-be-set-active']['option_name'] = NULL;
+
     if (isset($_SESSION['selected-button-value-1'])) $sql = "DELETE FROM time_set WHERE option_name = ?";
     if (isset($_SESSION['selected-button-value-2'])) $sql = "DELETE FROM eeprom_mirror WHERE option_name = ?";
     if (isset($_SESSION['selected-button-value-3'])) $sql = "DELETE FROM settings_by_date WHERE date_active = ?";
@@ -120,64 +134,74 @@ if (isset($_POST['auto-gen'])) {
     $_SESSION['selected-button-value-3'] = NULL;
     $_SESSION['selected-button-value-4'] = NULL;
 
-    if (
-        isset($_SESSION['option-name']) && isset($_SESSION['option-name']) && isset($_SESSION['time-string']) && isset($_SESSION['sh']) && isset($_SESSION['sm'])
-        && isset($_SESSION['len']) && isset($_SESSION['break']) && isset($_SESSION['l-break']) && isset($_SESSION['s-break'])
-    ) {
-        header('Location: ./admin.php?a nega');
-        exit();
+    $changesMade = 0;
+
+    if (!empty($_POST['name'])) $_SESSION['name'] = $_POST['name'];
+    if (!empty($_POST['start-hours'])) $_SESSION['sh'] = $_POST['start-hours'];
+    if (!empty($_POST['start-minutes'])) $_SESSION['sm'] = $_POST['start-minutes'];
+    $classStart = $_SESSION['sh'] . $_SESSION['sm'];
+    if (!empty($_POST['class-len'])) $_SESSION['len'] = $_POST['class-len'];
+    if (!empty($_POST['break'])) $_SESSION['break'] = $_POST['break'];
+    if (!empty($_POST['long-break'])) $_SESSION['l-break'] = $_POST['long-break'];
+    if (!empty($_POST['shift-break'])) $_SESSION['s-break'] = $_POST['shift-break'];
+    $timeString = '' . $classStart;
+    /*echo $_SESSION['name'];
+    echo $_SESSION['sh'];
+    echo $_SESSION['sm'];
+    echo $_SESSION['len'];
+    echo $_SESSION['break'];
+    echo $_SESSION['l-break'];
+    echo $_SESSION['s-break'];*/
+
+    if (empty($_POST['name']) && empty($_POST['start-hours']) && empty($_POST['start-minutes']) && empty($_POST['class-len']) && empty($_POST['break']) && empty($_POST['long-break']) && empty($_POST['shift-break'])) {
     }
 
-    $_SESSION['name'] = $_POST['name'];
-    $_SESSION['sh'] = $_POST['start-hours'];
-    $_SESSION['sm'] = $_POST['start-minutes'];
-    $classStart = $_POST['start-hours'] . $_POST['start-minutes'];
-    $_SESSION['len'] = $_POST['class-len'];
-    $_SESSION['break'] = $_POST['break'];
-    $_SESSION['l-break'] = $_POST['long-break'];
-    $_SESSION['s-break'] = $_POST['shift-break'];
-    $timeString = '' . $classStart;
-
-    if (empty($_SESSION['name']) || empty($classStart) || empty($_SESSION['len']) || empty($_SESSION['break']) || empty($_SESSION['l-break']) || empty($_SESSION['s-break'])) {
+    if (
+        isset($_SESSION['option-name']) && isset($_SESSION['name']) && isset($_SESSION['time-string']) && isset($_SESSION['sh']) && isset($_SESSION['sm'])
+        && isset($_SESSION['len']) && isset($_SESSION['break']) && isset($_SESSION['l-break']) && isset($_SESSION['s-break'])
+    ) {
+        $_SESSION['option-name'] = $_SESSION['name'];
+        header("Location: ./admin.php");
+    }
+    else if (empty($_SESSION['name']) || empty($classStart) || empty($_SESSION['len']) || empty($_SESSION['break']) || empty($_SESSION['l-break']) || empty($_SESSION['s-break'])) {
         $_SESSION['option-name'] = NULL;
         $_SESSION['time-string'] = NULL;
         header('Location: ./admin.php?error=emptyfields');
         exit();
-    } else {
-
-        for ($i = 0; $i < 14; $i++) {
-            $addMinutes = $_SESSION['len'];
-            $newMinutes = $timeString[$i * 8 + 2] * 10 + $timeString[$i * 8 + 3] + $addMinutes;
-            if ($newMinutes >= 60) {
-                $newMinutes %= 60;
-                $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1] + 1;
-            } else $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1];
-            if ($newMinutes < 10) $newMinutes = '0' . $newMinutes;
-            if ($newHours < 10) $newHours = '0' . $newHours;
-
-            $timeString = $timeString . $newHours . $newMinutes;
-            if ($i == 13) break;
-
-            if ($i % 8 == 6) $addMinutes = $_SESSION['s-break'];
-            else if ($i % 8 == 2 || $i % 8 == 9) $addMinutes = $_SESSION['l-break'];
-            else $addMinutes = $_SESSION['break'];
-
-            $newMinutes = $timeString[$i * 8 + 6] * 10 + $timeString[$i * 8 + 7] + $addMinutes;
-            if ($newMinutes >= 60) {
-                $newMinutes %= 60;
-                $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5] + 1;
-            } else $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5];
-            if ($newMinutes < 10) $newMinutes = '0' . $newMinutes;
-            if ($newHours < 10) $newHours = '0' . $newHours;
-
-            $timeString = $timeString . $newHours . $newMinutes;
-        }
-        $timeString = $timeString . '#';
-        if (!empty($_SESSION['name'])) $_SESSION['option-name'] = $_SESSION['name'];
-        $_SESSION['time-string'] = $timeString;
-        header("Location: ./admin.php");
-        exit();
     }
+
+    for ($i = 0; $i < 14; $i++) {
+        $addMinutes = $_SESSION['len'];
+        $newMinutes = $timeString[$i * 8 + 2] * 10 + $timeString[$i * 8 + 3] + $addMinutes;
+        if ($newMinutes >= 60) {
+            $newMinutes %= 60;
+            $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1] + 1;
+        } else $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1];
+        if ($newMinutes < 10) $newMinutes = '0' . $newMinutes;
+        if ($newHours < 10) $newHours = '0' . $newHours;
+
+        $timeString = $timeString . $newHours . $newMinutes;
+        if ($i == 13) break;
+
+        if ($i % 8 == 6) $addMinutes = $_SESSION['s-break'];
+        else if ($i % 8 == 2 || $i % 8 == 9) $addMinutes = $_SESSION['l-break'];
+        else $addMinutes = $_SESSION['break'];
+
+        $newMinutes = $timeString[$i * 8 + 6] * 10 + $timeString[$i * 8 + 7] + $addMinutes;
+        if ($newMinutes >= 60) {
+            $newMinutes %= 60;
+            $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5] + 1;
+        } else $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5];
+        if ($newMinutes < 10) $newMinutes = '0' . $newMinutes;
+        if ($newHours < 10) $newHours = '0' . $newHours;
+
+        $timeString = $timeString . $newHours . $newMinutes;
+    }
+    $timeString = $timeString . '#';
+    if (!empty($_SESSION['name'])) $_SESSION['option-name'] = $_SESSION['name'];
+    $_SESSION['time-string'] = $timeString;
+    header("Location: ./admin.php");
+    exit();
 } else {
     header("Location: ./admin.php");
     exit();
@@ -185,3 +209,16 @@ if (isset($_POST['auto-gen'])) {
 
 header("Location: ./admin.php");
 exit();
+
+function checkRecords()
+{
+    require '../page_scripts/dbh.php';
+
+    if (isset($_POST['db-save'])) $sql = "SELECT * FROM time_set WHERE option_name = '" . $_SESSION['option-name'] . "'";
+    if (isset($_POST['eeprom-save'])) $sql = "SELECT * FROM eeprom_mirror WHERE option_name = '" . $_SESSION['option-name'] . "'";
+    $result = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_assoc($result)) {
+        header("Location: ./admin.php?error=nameexists");
+        exit();
+    }
+}

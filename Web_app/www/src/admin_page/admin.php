@@ -46,7 +46,7 @@ if (isset($_POST['form-reset'])) {
             <form action="save_to_db.php" method="post" id="auto-time-set">
                 <div class="settings">
                     <h2>Naziv postavke</h2>
-                    <input class="option-name" type="text" maxlength="50" name="name" placeholder="<?php echo $_SESSION['option-name']; ?>">
+                    <input class="option-name" type="text" maxlength="50" name="name" placeholder="<?php echo $_SESSION['name']; ?>">
                     <h2>Početak jutarnje smjene</h2>
                     <input type="text" name="start-hours" maxlength="2" placeholder="<?php echo $_SESSION['sh']; ?>">
                     :
@@ -207,8 +207,25 @@ if (isset($_POST['form-reset'])) {
                                 if ($row['option_name'] == $_SESSION['selected-button-value-4']) break;
                                 if ($row['date_active'] == $dateToParse) break;
                             }
+                            $_SESSION['to-be-set-active'] = $row;
                         }
-                        $_SESSION['to-be-set-active'] = $row;
+                    } else {
+                        if (isset($_SESSION['selected-button-value-1'])) $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
+                        if (isset($_SESSION['selected-button-value-2'])) $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['selected-button-value-2'] . '\'';
+                        if (isset($_SESSION['selected-button-value-3'])) $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $_SESSION['date-to-parse'] . '\'';
+                        if (isset($_SESSION['selected-button-value-4'])) $sql = 'SELECT * FROM active_setting WHERE option_name = \'' . $_SESSION['selected-button-value-4'] . '\'';
+                        $result = mysqli_query($conn, $sql);
+
+                        if (!empty($result)) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                if ($row['option_name'] == $_SESSION['selected-button-value-1']) break;
+                                if ($row['option_name'] == $_SESSION['selected-button-value-2']) break;
+                                if ($row['option_name'] == $_SESSION['selected-button-value-3']) break;
+                                if ($row['option_name'] == $_SESSION['selected-button-value-4']) break;
+                                if ($row['date_active'] == $dateToParse) break;
+                            }
+                            $_SESSION['to-be-set-active'] = $row;
+                        }
                     }
                 }
 
