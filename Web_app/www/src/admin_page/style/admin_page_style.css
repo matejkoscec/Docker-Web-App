@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .wrapper {
@@ -12,7 +13,6 @@
 
 h2 {
     text-decoration: none;
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 20px;
     font-weight: lighter;
     text-align: center;
@@ -21,7 +21,6 @@ h2 {
 
 h3 {
     text-decoration: none;
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
     font-weight: lighter;
     text-align: center;
@@ -63,13 +62,24 @@ header {
     flex-direction: row;
 }
 
+section {
+    margin: 50px 0;
+}
+
 #auto-time-set {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    width: 100%;
 }
 
-.settings {
-    margin: auto;
+.settings-left {
+    margin-left: auto;
+    margin-right: 50px;
+}
+
+.settings-right {
+    margin-right: auto;
 }
 
 .time-display {
@@ -77,12 +87,7 @@ header {
 }
 
 .section1 {
-    display: flex;
-    flex-direction: row;
-}
-
-.menus {
-    margin: auto;
+    display: block;
 }
 
 .time-display-table {
@@ -92,10 +97,16 @@ header {
 .section2 {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.menus {
+    margin: auto 50px auto auto;
 }
 
 .manual-setup-tables {
-    margin: auto;
+    margin-right: auto;
 }
 
 .calendar-wrapper {

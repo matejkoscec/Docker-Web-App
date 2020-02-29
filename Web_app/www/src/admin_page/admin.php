@@ -12,6 +12,8 @@ if (!isset($_SESSION['time2'])) $_SESSION['time2'] = date('Y-m', time());
 if (isset($_POST['form-reset'])) {
     $_SESSION['option-name'] = NULL;
     $_SESSION['time-string'] = NULL;
+    $_SESSION['ring-enable'] = NULL;
+    $_SESSION['name'] = NULL;
     $_SESSION['sh'] = NULL;
     $_SESSION['sm'] = NULL;
     $_SESSION['len'] = NULL;
@@ -22,7 +24,9 @@ if (isset($_POST['form-reset'])) {
     $_SESSION['selected-button-value-2'] = NULL;
     $_SESSION['selected-button-value-3'] = NULL;
     $_SESSION['selected-button-value-4'] = NULL;
-}
+
+    $saveEnable = FALSE;
+} else $saveEnable = TRUE;
 
 ?>
 
@@ -38,13 +42,13 @@ if (isset($_POST['form-reset'])) {
 <body>
     <div class="wrapper">
 
-        <header style="background-color: black; color: white;">
-            header
+        <header>
+            <?php require '../page_scripts/header.php'; ?>
         </header>
 
         <section class="section1">
             <form action="save_to_db.php" method="post" id="auto-time-set">
-                <div class="settings">
+                <div class="settings-left">
                     <h2>Naziv postavke</h2>
                     <input class="option-name" type="text" maxlength="50" name="name" placeholder="<?php echo $_SESSION['name']; ?>">
                     <h2>Početak jutarnje smjene</h2>
@@ -54,7 +58,7 @@ if (isset($_POST['form-reset'])) {
                     <h2>Trajanje sata (min)</h2>
                     <input class="option-name" type="text" name="class-len" maxlength="50" placeholder="<?php echo $_SESSION['len']; ?>">
                 </div>
-                <div class="settings">
+                <div class="settings-right">
                     <h2>Trajanje malih odmora (min)</h2>
                     <input class="option-name" type="text" name="break" maxlength="50" placeholder="<?php echo $_SESSION['break']; ?>">
                     <h2>Trajanje velikih odmora (min)</h2>
@@ -62,13 +66,12 @@ if (isset($_POST['form-reset'])) {
                     <h2>Pauza između smjena (min)</h2>
                     <input class="option-name" type="text" name="shift-break" maxlength="50" placeholder="<?php echo $_SESSION['s-break']; ?>">
                     <br>
-                    <button class="select" type="submit" form="auto-time-set" name="auto-gen">Generiraj</button>
                 </div>
             </form>
-            <p><?php if (isset($_GET['error'])) if ($_GET['error'] == 'emptyfields') echo 'Popunite sva polja.'; ?></p>
+            <br>
+            <button style="margin-left: 462px;" class="select" type="submit" form="auto-time-set" name="auto-gen">Generiraj</button>
+            <p style="display: inline;"><?php if (isset($_GET['error'])) if ($_GET['error'] == 'emptyfields') echo 'Popunite sva polja.'; ?></p>
         </section>
-
-        <button id="baton" onclick="document.getElementById('baton').style.background = 'green';">Mo bamba</button>
 
         <section class="section2">
             <div class="menus">
@@ -135,103 +138,17 @@ if (isset($_POST['form-reset'])) {
             <div class="manual-setup-tables">
                 <?php
 
-                $numOfResults = 1;
-                $sql = "SELECT * FROM time_set;";
-                $result = mysqli_query($conn, $sql);
-                $numOfResults += mysqli_num_rows($result);
-                $sql = "SELECT * FROM eeprom_mirror;";
-                $result = mysqli_query($conn, $sql);
-                $numOfResults += mysqli_num_rows($result);
-
-                for ($i = 0; $i < $numOfResults; $i++) {
-                    if (isset($_POST['ts-button' . $i]) || isset($_POST['eeprom-button' . $i]) || isset($_POST['calendar-button' . $i]) || isset($_POST['active-button'])) {
-                        for ($i = 0; $i < $numOfResults; $i++) {
-                            if (isset($_POST['ts-button' . $i])) {
-                                $_SESSION['selected-button-value-1'] = $_POST['ts-button' . $i];
-                                $_SESSION['selected-button-value-2'] = NULL;
-                                $_SESSION['selected-button-value-3'] = NULL;
-                                $_SESSION['selected-button-value-4'] = NULL;
-                            }
-                        }
-
-                        for ($i = 0; $i < $numOfResults; $i++) {
-                            if (isset($_POST['eeprom-button' . $i])) {
-                                $_SESSION['selected-button-value-2'] = $_POST['eeprom-button' . $i];
-                                $_SESSION['selected-button-value-1'] = NULL;
-                                $_SESSION['selected-button-value-3'] = NULL;
-                                $_SESSION['selected-button-value-4'] = NULL;
-                            }
-                        }
-
-                        for ($i = 1; $i <= 31; $i++) {
-                            if (isset($_POST['calendar-button' . $i])) {
-                                $_SESSION['selected-button-value-3'] = $_POST['calendar-button' . $i];
-                                $_SESSION['selected-button-value-1'] = NULL;
-                                $_SESSION['selected-button-value-2'] = NULL;
-                                $_SESSION['selected-button-value-4'] = NULL;
-                            }
-                        }
-
-
-                        if (isset($_POST['active-button'])) {
-                            $_SESSION['selected-button-value-4'] = $_POST['active-button'];
-                            $_SESSION['selected-button-value-1'] = NULL;
-                            $_SESSION['selected-button-value-2'] = NULL;
-                            $_SESSION['selected-button-value-3'] = NULL;
-                        }
-
-                        if (isset($_SESSION['selected-button-value-1'])) {
-                            $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
-                        }
-                        if (isset($_SESSION['selected-button-value-2'])) {
-                            $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['selected-button-value-2'] . '\'';
-                        }
-                        if (isset($_SESSION['selected-button-value-3'])) {
-                            if ($_SESSION['selected-button-value-3'] < 10) {
-                                if (strlen($_SESSION['selected-button-value-3']) < 2) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
-                            }
-                            $dateToParse = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
-                            $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $dateToParse . '\'';
-                            $_SESSION['date-to-parse'] = $dateToParse;
-                        }
-                        if (isset($_SESSION['selected-button-value-4'])) {
-                            $sql = 'SELECT * FROM active_setting WHERE option_name = \'' . $_SESSION['selected-button-value-4'] . '\'';
-                        }
-                        $result = mysqli_query($conn, $sql);
-
-                        if (!empty($result)) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                if ($row['option_name'] == $_SESSION['selected-button-value-1']) break;
-                                if ($row['option_name'] == $_SESSION['selected-button-value-2']) break;
-                                if ($row['option_name'] == $_SESSION['selected-button-value-3']) break;
-                                if ($row['option_name'] == $_SESSION['selected-button-value-4']) break;
-                                if ($row['date_active'] == $dateToParse) break;
-                            }
-                            $_SESSION['to-be-set-active'] = $row;
-                        }
-                    } else {
-                        if (isset($_SESSION['selected-button-value-1'])) $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
-                        if (isset($_SESSION['selected-button-value-2'])) $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['selected-button-value-2'] . '\'';
-                        if (isset($_SESSION['selected-button-value-3'])) $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $_SESSION['date-to-parse'] . '\'';
-                        if (isset($_SESSION['selected-button-value-4'])) $sql = 'SELECT * FROM active_setting WHERE option_name = \'' . $_SESSION['selected-button-value-4'] . '\'';
-                        $result = mysqli_query($conn, $sql);
-
-                        if (!empty($result)) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                if ($row['option_name'] == $_SESSION['selected-button-value-1']) break;
-                                if ($row['option_name'] == $_SESSION['selected-button-value-2']) break;
-                                if ($row['option_name'] == $_SESSION['selected-button-value-3']) break;
-                                if ($row['option_name'] == $_SESSION['selected-button-value-4']) break;
-                                if ($row['date_active'] == $dateToParse) break;
-                            }
-                            $_SESSION['to-be-set-active'] = $row;
-                        }
-                    }
-                }
+                manualSetup();
 
                 require 'manual_edit.php';
 
                 ?>
+
+                <div class="buttons">
+                    <form action="admin.php" id="reset" method="post" style="display: inline-block;"><button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button></form
+                    ><?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>'; ?>
+                    <?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="eeprom-save">Spremi na arduino</button>'; ?>
+                </div>
             </div>
 
         </section>
@@ -243,14 +160,6 @@ if (isset($_POST['form-reset'])) {
                 require '../page_scripts/calendar.php'
                 ?>
             </div>
-            <div class="buttons">
-                <button class="select" type="submit" form="time_set" name="db-save">Spremi</button>
-                <form action="admin.php" id="reset" method="post" style="display: inline-block;"><button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button></form>
-                <button class="select" type="submit" form="time_set" name="eeprom-save">Spremi na arduino</button>
-            </div>
-            <?php
-
-            ?>
         </section>
 
         <footer>
@@ -261,3 +170,109 @@ if (isset($_POST['form-reset'])) {
 </body>
 
 </html>
+
+
+<?php
+
+function manualSetup()
+{
+    require '../page_scripts/dbh.php';
+
+    $numOfResults = 1;
+    $sql = "SELECT * FROM time_set;";
+    $result = mysqli_query($conn, $sql);
+    $numOfResults += mysqli_num_rows($result);
+    $sql = "SELECT * FROM eeprom_mirror;";
+    $result = mysqli_query($conn, $sql);
+    $numOfResults += mysqli_num_rows($result);
+
+    for ($i = 0; $i < $numOfResults; $i++) {
+        if (isset($_POST['ts-button' . $i]) || isset($_POST['eeprom-button' . $i]) || isset($_POST['calendar-button' . $i]) || isset($_POST['active-button'])) {
+
+            $_SESSION['option-name'] = NULL;
+            $_SESSION['time-string'] = NULL;
+
+            for ($i = 0; $i < $numOfResults; $i++) {
+                if (isset($_POST['ts-button' . $i])) {
+                    $_SESSION['selected-button-value-1'] = $_POST['ts-button' . $i];
+                    $_SESSION['selected-button-value-2'] = NULL;
+                    $_SESSION['selected-button-value-3'] = NULL;
+                    $_SESSION['selected-button-value-4'] = NULL;
+                }
+            }
+
+            for ($i = 0; $i < $numOfResults; $i++) {
+                if (isset($_POST['eeprom-button' . $i])) {
+                    $_SESSION['selected-button-value-2'] = $_POST['eeprom-button' . $i];
+                    $_SESSION['selected-button-value-1'] = NULL;
+                    $_SESSION['selected-button-value-3'] = NULL;
+                    $_SESSION['selected-button-value-4'] = NULL;
+                }
+            }
+
+            for ($i = 1; $i <= 31; $i++) {
+                if (isset($_POST['calendar-button' . $i])) {
+                    $_SESSION['selected-button-value-3'] = $_POST['calendar-button' . $i];
+                    $_SESSION['selected-button-value-1'] = NULL;
+                    $_SESSION['selected-button-value-2'] = NULL;
+                    $_SESSION['selected-button-value-4'] = NULL;
+                }
+            }
+
+
+            if (isset($_POST['active-button'])) {
+                $_SESSION['selected-button-value-4'] = $_POST['active-button'];
+                $_SESSION['selected-button-value-1'] = NULL;
+                $_SESSION['selected-button-value-2'] = NULL;
+                $_SESSION['selected-button-value-3'] = NULL;
+            }
+
+            if (isset($_SESSION['selected-button-value-1'])) {
+                $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
+            }
+            if (isset($_SESSION['selected-button-value-2'])) {
+                $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['selected-button-value-2'] . '\'';
+            }
+            if (isset($_SESSION['selected-button-value-3'])) {
+                if ($_SESSION['selected-button-value-3'] < 10) {
+                    if (strlen($_SESSION['selected-button-value-3']) < 2) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
+                }
+                $dateToParse = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
+                $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $dateToParse . '\'';
+                $_SESSION['date-to-parse'] = $dateToParse;
+            }
+            if (isset($_SESSION['selected-button-value-4'])) {
+                $sql = 'SELECT * FROM active_setting WHERE option_name = \'' . $_SESSION['selected-button-value-4'] . '\'';
+            }
+            $result = mysqli_query($conn, $sql);
+
+            if (!empty($result)) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    if ($row['option_name'] == $_SESSION['selected-button-value-1']) break;
+                    if ($row['option_name'] == $_SESSION['selected-button-value-2']) break;
+                    if ($row['option_name'] == $_SESSION['selected-button-value-3']) break;
+                    if ($row['option_name'] == $_SESSION['selected-button-value-4']) break;
+                    if ($row['date_active'] == $dateToParse) break;
+                }
+                $_SESSION['to-be-set-active'] = $row;
+            }
+        } else {
+            if (isset($_SESSION['selected-button-value-1'])) $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
+            if (isset($_SESSION['selected-button-value-2'])) $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['selected-button-value-2'] . '\'';
+            if (isset($_SESSION['selected-button-value-3'])) $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $_SESSION['date-to-parse'] . '\'';
+            if (isset($_SESSION['selected-button-value-4'])) $sql = 'SELECT * FROM active_setting WHERE option_name = \'' . $_SESSION['selected-button-value-4'] . '\'';
+            $result = mysqli_query($conn, $sql);
+
+            if (!empty($result)) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    if ($row['option_name'] == $_SESSION['selected-button-value-1']) break;
+                    if ($row['option_name'] == $_SESSION['selected-button-value-2']) break;
+                    if ($row['option_name'] == $_SESSION['selected-button-value-3']) break;
+                    if ($row['option_name'] == $_SESSION['selected-button-value-4']) break;
+                    if ($row['date_active'] == $dateToParse) break;
+                }
+                $_SESSION['to-be-set-active'] = $row;
+            }
+        }
+    }
+}

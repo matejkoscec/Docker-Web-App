@@ -7,7 +7,7 @@
     echo '<p>' . $row['option_name'] . '</p>';
     echo '<br>';
     echo '<tr><td>';
-    $allowCalc = true;
+    $allowCalc = TRUE;
     for ($i = 0; $i < strlen($row['time_string']) / 2 - 1; $i++) {
 
         if ($i % 8 == 2) echo ':';
@@ -21,7 +21,7 @@
 
             if ($i != 0) {
                 for ($j = 0; $j < 8; $j++) {
-                    if ($row['time_string'][$i + 8 + $j] == '#' || $row['time_string'][$i + 8 + $j] == NULL) $allowCalc = false;
+                    if ($row['time_string'][$i + 8 + $j] == '#' || $row['time_string'][$i + 8 + $j] == NULL) $allowCalc = FALSE;
                 }
                 if ($allowCalc) {
                     $time1 = ($row['time_string'][$i - 4] * 10 + $row['time_string'][$i - 3]) * 60 + $row['time_string'][$i - 2] * 10 + $row['time_string'][$i - 1];
@@ -62,7 +62,7 @@
     <?php
 
     echo '<tr><td>';
-    $allowCalc = true;
+    $allowCalc = TRUE;
     for ($i = strlen($row['time_string']) / 2; $i < strlen($row['time_string']); $i++) {
 
         if ($i % 8 == 2) echo ':';
@@ -77,7 +77,7 @@
 
             if ($i != strlen($row['time_string']) / 2) {
                 for ($j = 0; $j < 8; $j++) {
-                    if ($row['time_string'][$i + 8 + $j] == '#' || $row['time_string'][$i + 8 + $j] == NULL) $allowCalc = false;
+                    if ($row['time_string'][$i + 8 + $j] == '#' || $row['time_string'][$i + 8 + $j] == NULL) $allowCalc = FALSE;
                 }
                 if ($allowCalc) {
                     $time1 = ($row['time_string'][$i - 4] * 10 + $row['time_string'][$i - 3]) * 60 + $row['time_string'][$i - 2] * 10 + $row['time_string'][$i - 1];

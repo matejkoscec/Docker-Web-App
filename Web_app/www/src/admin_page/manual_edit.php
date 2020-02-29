@@ -19,9 +19,6 @@
         $ringEnable = '11111111111111';
     }
 
-    echo $_SESSION['to-be-set-active']['ring_enable'];
-    echo '<br>' . $ringEnable;
-
     $i = 0;
 
     ?>
@@ -46,7 +43,7 @@
                 <input type="text" name="u13" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="u1" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u1" value="1" <?php if ($ringEnable[0] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -63,7 +60,7 @@
                 <input type="text" name="u23" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="u2" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u2" value="1" <?php if ($ringEnable[1] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -80,7 +77,7 @@
                 <input type="text" name="u33" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="u3" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u3" value="1" <?php if ($ringEnable[2] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -97,7 +94,7 @@
                 <input type="text" name="u43" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="u4" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u4" value="1" <?php if ($ringEnable[3] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -114,7 +111,7 @@
                 <input type="text" name="u53" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="u5" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u5" value="1" <?php if ($ringEnable[4] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -131,7 +128,7 @@
                 <input type="text" name="u63" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="u6" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u6" value="1" <?php if ($ringEnable[5] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -148,7 +145,7 @@
                 <input type="text" name="u73" maxlength="2" placeholder="<?php echo $am[$i] . $am[$i + 1];
                                                                             $i = 0; ?>">
             </td>
-            <td><input type="checkbox" name="u7" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="u7" value="1" <?php if ($ringEnable[6] == '1') echo 'checked' ?>></td>
         </tr>
     </table>
 
@@ -171,7 +168,7 @@
                 <input type="text" name="p13" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p1" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p1" value="1" <?php if ($ringEnable[7] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -188,7 +185,7 @@
                 <input type="text" name="p23" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p2" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p2" value="1" <?php if ($ringEnable[8] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -205,7 +202,7 @@
                 <input type="text" name="p33" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p3" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p3" value="1" <?php if ($ringEnable[9] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -222,7 +219,7 @@
                 <input type="text" name="p43" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p4" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p4" value="1" <?php if ($ringEnable[10] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -239,7 +236,7 @@
                 <input type="text" name="p53" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p5" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p5" value="1" <?php if ($ringEnable[11] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -256,7 +253,7 @@
                 <input type="text" name="p63" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p6" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p6" value="1" <?php if ($ringEnable[12] == '1') echo 'checked' ?>></td>
         </tr>
         <tr>
             <td>
@@ -273,7 +270,7 @@
                 <input type="text" name="p73" maxlength="2" placeholder="<?php echo $pm[$i] . $pm[$i + 1];
                                                                             $i += 2 ?>">
             </td>
-            <td><input type="checkbox" name="p7" value="1" <?php if ($ringEnable[$i / 8 - 1] == '1') echo 'checked' ?>></td>
+            <td><input type="checkbox" name="p7" value="1" <?php if ($ringEnable[13] == '1') echo 'checked' ?>></td>
         </tr>
     </table>
 </form>

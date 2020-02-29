@@ -6,6 +6,19 @@ require '../page_scripts/dbh.php';
 
 require '../page_scripts/user_check.php';
 
+$_SESSION['option-name'] = NULL;
+$_SESSION['time-string'] = NULL;
+$_SESSION['name'] = NULL;
+$_SESSION['sh'] = NULL;
+$_SESSION['sm'] = NULL;
+$_SESSION['len'] = NULL;
+$_SESSION['break'] = NULL;
+$_SESSION['l-break'] = NULL;
+$_SESSION['s-break'] = NULL;
+$_SESSION['selected-button-value-1'] = NULL;
+$_SESSION['selected-button-value-2'] = NULL;
+$_SESSION['selected-button-value-3'] = NULL;
+
 ?>
 
 <!DOCTYPE html>
@@ -19,25 +32,10 @@ require '../page_scripts/user_check.php';
 
 <body>
     <div class="wrapper">
-        <div class="header">
-            <h3>Prijavljeni ste kao: </h3>
-            <?php
-            echo '<h4>' . $username . '</h4>';
-            ?>
-            <form action="../page_scripts/logout.php" method="post" id="logout">
-                <button type=submit name="logout-submit">Odjava</button>
-            </form>
-        </div>
+        
         <br>
         <br>
         <button onclick="window.location.href = '../admin_page/admin.php';">Postavljanje zvona</button>
-
-        <div class="calendar">
-
-        </div>
-        <div class="selected">
-
-        </div>
     </div>
 </body>
 
