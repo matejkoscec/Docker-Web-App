@@ -6,9 +6,6 @@ require '../page_scripts/dbh.php';
 
 require '../page_scripts/admin_check.php';
 
-if (!isset($_SESSION['time1'])) $_SESSION['time1'] = date('Y-m', time());
-if (!isset($_SESSION['time2'])) $_SESSION['time2'] = date('Y-m', time());
-
 if (isset($_POST['form-reset'])) {
     $_SESSION['option-name'] = NULL;
     $_SESSION['time-string'] = NULL;
@@ -145,25 +142,15 @@ if (isset($_POST['form-reset'])) {
                 ?>
 
                 <div class="buttons">
-                    <form action="admin.php" id="reset" method="post" style="display: inline-block;"><button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button></form
-                    ><?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>'; ?>
+                    <form action="admin.php" id="reset" method="post" style="display: inline-block;"><button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button></form><?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>'; ?>
                     <?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="eeprom-save">Spremi na arduino</button>'; ?>
                 </div>
             </div>
 
         </section>
 
-        <section class="section3">
-            <div class="calendar-wrapper">
-                <?php
-                $_SESSION['calendar-id'] = 1;
-                require '../page_scripts/calendar.php'
-                ?>
-            </div>
-        </section>
-
         <footer>
-
+            <button class="select" onclick="window.location.href = './settings_by_date.php';">Raspored zvona</button>
         </footer>
 
     </div>

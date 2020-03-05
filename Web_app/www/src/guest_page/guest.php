@@ -33,12 +33,9 @@ require '../page_scripts/dbh.php';
         <h3>Naziv: </h3>
         <?php
 
-        $sql = "SELECT * FROM time_set WHERE id = 1";
+        $sql = "SELECT * FROM active_setting WHERE id = 1";
         $result = mysqli_query($conn, $sql);
         $row = mysqli_fetch_assoc($result);
-
-        echo '<p>' . $row['option_name'] . '</p>';
-        echo '<br><br><br><br>';
 
         require '../page_scripts/time_display.php';
 

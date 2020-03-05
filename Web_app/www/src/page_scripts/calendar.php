@@ -2,15 +2,17 @@
 
 date_default_timezone_set('Europe/Zagreb');
 
-if (isset($_GET['ym1'])) {
-    $ym = $_GET['ym1'];
+if (!isset($_SESSION['time1'])) $_SESSION['time1'] = date('Y-m', time());
+
+if (isset($_GET['ym'])) {
+    $ym = $_GET['ym'];
     $_SESSION['time1'] = $ym;
 } else {
     $ym = date('Y-m', strtotime($_SESSION['time1'], "-01"));
 }
 
 $timeStamp = strtotime($ym, "-01");
-if ($timeStamp === false) {
+if ($timeStamp == false) {
     $timeStamp = time();
 }
 
@@ -37,7 +39,7 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
     if ($today == $date) {
         $week .= '<td>' . $day;
     } else {
-        $week .= '<td><button type="submit" form="calendar" value="' . $day . '" name="calendar-button' . $day . '">' . $day . '</button>';
+        $week .= '<td><button class="calendar-button" type="submit" form="calendar" value="' . $day . '" name="calendar-button' . $day . '">' . $day . '</button>';
     }
     $week .= '</td>';
 
@@ -54,8 +56,8 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
 
 ?>
 
+<h4><a href="?ym=<?php echo $prev; ?>">&lt; </a><?php echo $_SESSION['calendar-date']; ?> <a href="?ym=<?php echo $next; ?>">&gt;</a></h4>
 <div class="calendar">
-    <h3><a href="?ym<?php echo $_SESSION['calendar-id'] ?>=<?php echo $prev; ?>">&lt; </a><?php echo $_SESSION['calendar-date']; ?> <a href="?ym<?php echo $_SESSION['calendar-id'] ?>=<?php echo $next; ?>">&gt;</a></h3>
     <table>
         <tr>
             <th>Pon</th>
