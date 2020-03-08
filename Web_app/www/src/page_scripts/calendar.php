@@ -2,13 +2,11 @@
 
 date_default_timezone_set('Europe/Zagreb');
 
-if (!isset($_SESSION['time1'])) $_SESSION['time1'] = date('Y-m', time());
-
 if (isset($_GET['ym'])) {
     $ym = $_GET['ym'];
-    $_SESSION['time1'] = $ym;
+    $_SESSION['time'] = $ym;
 } else {
-    $ym = date('Y-m', strtotime($_SESSION['time1'], "-01"));
+    $ym = date('Y-m', strtotime($_SESSION['time'], "-01"));
 }
 
 $timeStamp = strtotime($ym, "-01");
@@ -39,7 +37,8 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
     if ($today == $date) {
         $week .= '<td>' . $day;
     } else {
-        $week .= '<td><button class="calendar-button" type="submit" form="calendar" value="' . $day . '" name="calendar-button' . $day . '">' . $day . '</button>';
+        $week .= '<td><button class="calendar-button" type="submit" form="calendar" value="' . $day . '" name="calendar-button'
+        . $day . '">' . $day . '<br>Test' . '</button>';
     }
     $week .= '</td>';
 

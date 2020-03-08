@@ -22,8 +22,8 @@ if (isset($_POST['form-reset'])) {
     $_SESSION['selected-button-value-3'] = NULL;
     $_SESSION['selected-button-value-4'] = NULL;
 
-    $saveEnable = FALSE;
-} else $saveEnable = TRUE;
+    $saveEnable = false;
+} else $saveEnable = true;
 
 ?>
 

@@ -112,3 +112,8 @@ footer {
     width: 300px;
     border: 1px solid black;
 }
+
+.weekend-ignore-check {
+    min-width: 10px;
+    min-height: 10px;
+}

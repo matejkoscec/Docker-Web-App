@@ -7,7 +7,7 @@
     echo '<p>' . $_SESSION['to-be-set-active']['option_name'] . '</p>';
     echo '<br>';
     echo '<tr><td>';
-    $allowCalc = TRUE;
+    $allowCalc = true;
     for ($i = 0; $i <= floor(strlen($_SESSION['to-be-set-active']['time_string']) / 2); $i++) {
 
         if ($i % 8 == 2) echo ':';
@@ -32,7 +32,7 @@
 
             if ($i != 0) {
                 for ($j = 0; $j < 8; $j++) {
-                    if ($_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == '#' || $_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == NULL) $allowCalc = FALSE;
+                    if ($_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == '#' || $_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == NULL) $allowCalc = false;
                 }
                 if ($allowCalc) {
                     $time1 = ($_SESSION['to-be-set-active']['time_string'][$i - 4] * 10 + $_SESSION['to-be-set-active']['time_string'][$i - 3]) * 60 + $_SESSION['to-be-set-active']['time_string'][$i - 2] * 10 + $_SESSION['to-be-set-active']['time_string'][$i - 1];
@@ -73,7 +73,7 @@
     <?php
 
     echo '<tr><td>';
-    $allowCalc = TRUE;
+    $allowCalc = true;
     for ($i = strlen($_SESSION['to-be-set-active']['time_string']) / 2; $i < strlen($_SESSION['to-be-set-active']['time_string']); $i++) {
 
         if ($i % 8 == 2) echo ':';
@@ -93,7 +93,7 @@
 
             if ($i != strlen($_SESSION['to-be-set-active']['time_string']) / 2) {
                 for ($j = 0; $j < 8; $j++) {
-                    if ($_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == '#' || $_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == NULL) $allowCalc = FALSE;
+                    if ($_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == '#' || $_SESSION['to-be-set-active']['time_string'][$i + 8 + $j] == NULL) $allowCalc = false;
                 }
                 if ($allowCalc) {
                     $time1 = ($_SESSION['to-be-set-active']['time_string'][$i - 4] * 10 + $_SESSION['to-be-set-active']['time_string'][$i - 3]) * 60 + $_SESSION['to-be-set-active']['time_string'][$i - 2] * 10 + $_SESSION['to-be-set-active']['time_string'][$i - 1];
