@@ -34,11 +34,18 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
 
     $date = $ym . ' ' . $day;
 
+    for ($j = 0; $j <= count($_SESSION['dateArray']); $j++) {
+        if ($_SESSION['dateArray'][$j] == ($ym . '-' . $day) || $_SESSION['dateArray'][$j] == ($ym . '-0' . $day)) {
+            $highlight = 'style="background-color: green;"';
+            break;
+        } else $highlight = '';
+    }
+
     if ($today == $date) {
         $week .= '<td>' . $day;
     } else {
         $week .= '<td><button class="calendar-button" type="submit" form="calendar" value="' . $day . '" name="calendar-button'
-        . $day . '">' . $day . '<br>Test' . '</button>';
+            . $day . '" ' . $highlight . '>' . $day . '<br>Test' . '</button>';
     }
     $week .= '</td>';
 

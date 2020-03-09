@@ -14,9 +14,18 @@ if (isset($_POST['date-select'])) {
     $_SESSION['range-select-active'] = false;
 }
 
+
 if (isset($_POST['date-range-select'])) {
     $_SESSION['range-select-active'] = !$_SESSION['range-select-active'];
     $_SESSION['date-select-active'] = false;
+}
+
+
+if (isset($_POST['confirm'])) {
+    $_SESSION['date-select-active'] = false;
+    $_SESSION['range-select-active'] = false;
+    unset($_SESSION['dateArray']);
+    $_SESSION['dateArray'] = array();
 }
 
 ?>
@@ -80,6 +89,7 @@ if (isset($_POST['date-range-select'])) {
                     <button class="select" type="submit" form="menu" name="date-range-select" <?php if ($_SESSION['range-select-active']) echo 'style="background-color: red"'; ?>>Odaberi raspon datuma</button>
                     <p><button class="weekend-ignore-check" name="weekend-ignore" value="1"><?php if (!$_SESSION['weekend-ignore']) echo '✔';
                                                                                             else echo '&nbsp&nbsp&nbsp' ?></button> Zanemari subote i nedjelje</p>
+                    <button class="select" type="submit" form="menu" name="confirm">Spremi promjene</button>
                 </form>
             </div>
             <div class="calendar-wrapper">
@@ -158,39 +168,14 @@ function calendarHandler()
                 }
             }
 
+
             if ($_SESSION['control-index'] == 0) $_SESSION['control-index'] = 1;
             if ($_SESSION['range-select-active']) {
-
-                if ($_SESSION['selected-button-value-3'] < 10) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
-                $selectedDate = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
-
-                if ($_SESSION['selected-button-value-3'] == 0) return;
-
-                if ($_SESSION['control-index'] == 1) {
-                    if ($selectedDate == $_SESSION['date1']) {
-                        $_SESSION['date1'] = '';
-                        $_SESSION['control-index'] = 1;
-                    }
-                    else {
-                        $_SESSION['date1'] = $selectedDate;
-                        $_SESSION['control-index'] = 2;
-                    }
-                }
-                else if ($_SESSION['control-index'] == 2) {
-                    if ($selectedDate == $_SESSION['date2']) {
-                        $_SESSION['date2'] = '';
-                        $_SESSION['control-index'] = 2;
-                    } else {
-                        $_SESSION['date2'] = $selectedDate;
-                        $_SESSION['control-index'] = 0;
-                    }   
-                }
-                echo $_SESSION['date1'];
-                echo ' - ';
-                echo $_SESSION['date2'];
-
+                getDateEndpoints();
+                getDateRange();
                 return;
             }
+
 
             if (isset($_SESSION['selected-button-value-1'])) {
                 $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
@@ -217,6 +202,68 @@ function calendarHandler()
                 }
                 $_SESSION['to-be-set-active'] = $row;
             }
+        }
+    }
+}
+
+
+function getDateEndpoints()
+{
+    if ($_SESSION['selected-button-value-3'] < 10) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
+    $selectedDate = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
+
+    if ($_SESSION['selected-button-value-3'] == 0) return;
+
+    if ($_SESSION['control-index'] == 1) {
+        if ($selectedDate == $_SESSION['date1']) {
+            $_SESSION['date1'] = '';
+            $_SESSION['control-index'] = 1;
+        } else {
+            $_SESSION['date1'] = $selectedDate;
+            $_SESSION['control-index'] = 2;
+        }
+    } else if ($_SESSION['control-index'] == 2) {
+        if ($selectedDate == $_SESSION['date2']) {
+            $_SESSION['date2'] = '';
+            $_SESSION['control-index'] = 2;
+        } else {
+            $_SESSION['date2'] = $selectedDate;
+            $_SESSION['control-index'] = 0;
+        }
+    }
+}
+
+
+function getDateRange()
+{
+    $startDate = $_SESSION['date1'];
+    $endDate = $_SESSION['date2'];
+
+    if (empty($startDate)) 
+    {
+        $startDate = $endDate;
+        $_SESSION['dateArray'] = array();
+    }
+    if (empty($endDate)) {
+        $endDate = $startDate;
+        $_SESSION['dateArray'] = array();
+    }
+
+    if (strtotime($startDate) > strtotime($endDate)) {
+        $temp = $startDate;
+        $startDate = $endDate;
+        $endDate = $temp;
+    }
+
+    if ($startDate == $endDate) $_SESSION['dateArray'][0] = $startDate;
+    else {
+        $i = 0;
+        while ($startDate != date('Y-m-d', strtotime($endDate . '+1 day'))) {
+            if (!(date_format(date_create($startDate), 'D') == 'Sat' || date_format(date_create($startDate), 'D') == 'Sun')) {
+                $_SESSION['dateArray'][$i] = $startDate;
+                $i++;
+            }
+            $startDate = date('Y-m-d', strtotime($startDate . '+1 day'));
         }
     }
 }
