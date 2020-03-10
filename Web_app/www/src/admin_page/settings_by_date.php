@@ -26,6 +26,9 @@ if (isset($_POST['confirm'])) {
     $_SESSION['range-select-active'] = false;
     unset($_SESSION['dateArray']);
     $_SESSION['dateArray'] = array();
+    $_SESSION['control-index'] = 0;
+    $_SESSION['date1'] = '';
+    $_SESSION['date2'] = '';
 }
 
 ?>
@@ -210,23 +213,21 @@ function calendarHandler()
 function getDateEndpoints()
 {
     if ($_SESSION['selected-button-value-3'] < 10) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
-    $selectedDate = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
+    if (!empty($_SESSION['selected-button-value-3'])) $selectedDate = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
 
     if ($_SESSION['selected-button-value-3'] == 0) return;
 
-    if ($_SESSION['control-index'] == 1) {
-        if ($selectedDate == $_SESSION['date1']) {
-            $_SESSION['date1'] = '';
-            $_SESSION['control-index'] = 1;
-        } else {
+    if ($selectedDate == $_SESSION['date1']) {
+        $_SESSION['date1'] = '';
+        $_SESSION['control-index'] = 1;
+    } else if ($selectedDate == $_SESSION['date2']) {
+        $_SESSION['date2'] = '';
+        $_SESSION['control-index'] = 2;
+    } else {
+        if ($_SESSION['control-index'] == 1) {
             $_SESSION['date1'] = $selectedDate;
             $_SESSION['control-index'] = 2;
-        }
-    } else if ($_SESSION['control-index'] == 2) {
-        if ($selectedDate == $_SESSION['date2']) {
-            $_SESSION['date2'] = '';
-            $_SESSION['control-index'] = 2;
-        } else {
+        } else if ($_SESSION['control-index'] == 2) {
             $_SESSION['date2'] = $selectedDate;
             $_SESSION['control-index'] = 0;
         }
@@ -239,14 +240,14 @@ function getDateRange()
     $startDate = $_SESSION['date1'];
     $endDate = $_SESSION['date2'];
 
-    if (empty($startDate)) 
-    {
+    unset($_SESSION['dateArray']);
+    $_SESSION['dateArray'] = array();
+
+    if (empty($startDate)) {
         $startDate = $endDate;
-        $_SESSION['dateArray'] = array();
     }
     if (empty($endDate)) {
         $endDate = $startDate;
-        $_SESSION['dateArray'] = array();
     }
 
     if (strtotime($startDate) > strtotime($endDate)) {
@@ -267,3 +268,7 @@ function getDateRange()
         }
     }
 }
+
+
+for ($j = 0; $j <= count($_SESSION['dateArray']); $j++) echo $_SESSION['dateArray'][$j] . '<br>';
+

@@ -22,23 +22,23 @@ $prev = date('Y-m', mktime(0, 0, 0, date('m', $timeStamp) - 1, 1, date('Y', $tim
 $next = date('Y-m', mktime(0, 0, 0, date('m', $timeStamp) + 1, 1, date('Y', $timeStamp)));
 
 $daysInAMonth = date('t', $timeStamp);
-
 $str = date('w', mktime(0, 0, 0, date('m', $timeStamp), 0, date('Y', $timeStamp)));
-
 $weeks = array();
 $week = '';
-
 $week .= str_repeat('<td></td>', $str);
+
 
 for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
 
     $date = $ym . ' ' . $day;
 
-    for ($j = 0; $j <= count($_SESSION['dateArray']); $j++) {
-        if ($_SESSION['dateArray'][$j] == ($ym . '-' . $day) || $_SESSION['dateArray'][$j] == ($ym . '-0' . $day)) {
-            $highlight = 'style="background-color: green;"';
-            break;
-        } else $highlight = '';
+    if (!empty($_SESSION['dateArray'])) {
+        for ($j = 0; $j <= count($_SESSION['dateArray']); $j++) {
+            if ($_SESSION['dateArray'][$j] == ($ym . '-' . $day) || $_SESSION['dateArray'][$j] == ($ym . '-0' . $day)) {
+                $highlight = 'style="background-color: green;"';
+                break;
+            } else $highlight = 'style="background-color: white;"';
+        }
     }
 
     if ($today == $date) {
@@ -83,3 +83,4 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
         ?>
     </table>
 </div>
+
