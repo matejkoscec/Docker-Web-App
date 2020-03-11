@@ -7,7 +7,10 @@ require '../page_scripts/dbh.php';
 require '../page_scripts/admin_check.php';
 
 
-if (isset($_POST['weekend-ignore'])) $_SESSION['weekend-ignore'] = !$_SESSION['weekend-ignore'];
+if (isset($_POST['weekend-ignore'])) {
+    $_SESSION['weekend-ignore'] = !$_SESSION['weekend-ignore'];
+    getDateRange();
+}
 
 if (isset($_POST['date-select'])) {
     $_SESSION['date-select-active'] = !$_SESSION['date-select-active'];
@@ -22,6 +25,41 @@ if (isset($_POST['date-range-select'])) {
 
 
 if (isset($_POST['confirm'])) {
+
+    for ($i = 0; $i < count($_SESSION['dateArray']); $i++) {
+        $sql = "DELETE FROM settings_by_date WHERE date_active = '" . $_SESSION['dateArray'][$i] . "'";
+        mysqli_query($conn, $sql);
+    }
+
+    $sql = "INSERT INTO settings_by_date (date_active, option_name, time_string, ring_enable) VALUES (?, ?, ?, ?);";
+    $stmt = mysqli_stmt_init($conn);
+
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        header("Location: ./settings_by_date.php?error=sqlerror");
+        exit();
+    } else {
+        for ($i = 0; $i < count($_SESSION['dateArray']); $i++) {
+            mysqli_stmt_bind_param($stmt, "ssss", $_SESSION['dateArray'][$i], $_SESSION['to-be-set-active']['option_name'], $_SESSION['to-be-set-active']['time_string'], $_SESSION['to-be-set-active']['ring_enable']);
+            mysqli_stmt_execute($stmt);
+        }
+    }
+
+    $_SESSION['date-select-active'] = false;
+    $_SESSION['range-select-active'] = false;
+    unset($_SESSION['dateArray']);
+    $_SESSION['dateArray'] = array();
+    $_SESSION['control-index'] = 0;
+    $_SESSION['date1'] = '';
+    $_SESSION['date2'] = '';
+}
+
+
+if (isset($_POST['delete'])) {
+    for ($i = 0; $i < count($_SESSION['dateArray']); $i++) {
+        $sql = "DELETE FROM settings_by_date WHERE date_active = '" . $_SESSION['dateArray'][$i] . "'";
+        mysqli_query($conn, $sql);
+    }
+
     $_SESSION['date-select-active'] = false;
     $_SESSION['range-select-active'] = false;
     unset($_SESSION['dateArray']);
@@ -93,19 +131,13 @@ if (isset($_POST['confirm'])) {
                     <p><button class="weekend-ignore-check" name="weekend-ignore" value="1"><?php if (!$_SESSION['weekend-ignore']) echo '✔';
                                                                                             else echo '&nbsp&nbsp&nbsp' ?></button> Zanemari subote i nedjelje</p>
                     <button class="select" type="submit" form="menu" name="confirm">Spremi promjene</button>
+                    <button class="select" type="submit" form="menu" name="delete">Obriši odabrano</button>
                 </form>
             </div>
             <div class="calendar-wrapper">
                 <?php
 
                 if (!isset($_SESSION['time'])) $_SESSION['time'] = date('Y-m', time());
-
-                $year = substr($_SESSION['time'], 0, 4);
-                $month = substr($_SESSION['time'], 5);
-
-                $sql = "SELECT * FROM settings_by_date WHERE YEAR(date_active) = '" . $year . "' AND YEAR(date_active) = '" . $month . "';";
-                $result = mysqli_query($conn, $sql);
-
                 calendarHandler();
 
                 require '../page_scripts/calendar.php';
@@ -260,15 +292,17 @@ function getDateRange()
     else {
         $i = 0;
         while ($startDate != date('Y-m-d', strtotime($endDate . '+1 day'))) {
-            if (!(date_format(date_create($startDate), 'D') == 'Sat' || date_format(date_create($startDate), 'D') == 'Sun')) {
+            if ($_SESSION['weekend-ignore']) {
                 $_SESSION['dateArray'][$i] = $startDate;
                 $i++;
+            } else {
+                if (!(date_format(date_create($startDate), 'D') == 'Sat' || date_format(date_create($startDate), 'D') == 'Sun')) {
+                    $_SESSION['dateArray'][$i] = $startDate;
+                    $i++;
+                }
             }
             $startDate = date('Y-m-d', strtotime($startDate . '+1 day'));
         }
     }
 }
-
-
-for ($j = 0; $j <= count($_SESSION['dateArray']); $j++) echo $_SESSION['dateArray'][$j] . '<br>';
 

@@ -28,6 +28,20 @@ $week = '';
 $week .= str_repeat('<td></td>', $str);
 
 
+$year = substr($_SESSION['time'], 0, 4);
+$month = substr($_SESSION['time'], 5);
+$sql = "SELECT * FROM settings_by_date WHERE YEAR(date_active) = '" . $year . "' AND MONTH(date_active) = '" . $month . "';";
+$result = mysqli_query($conn, $sql);
+
+unset($rows);
+$rows = array();
+$i = 0;
+if (!empty($result)) {
+    while ($rows[$i] = mysqli_fetch_assoc($result)) {
+        $i++;
+    }
+}
+
 for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
 
     $date = $ym . ' ' . $day;
@@ -37,15 +51,23 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
             if ($_SESSION['dateArray'][$j] == ($ym . '-' . $day) || $_SESSION['dateArray'][$j] == ($ym . '-0' . $day)) {
                 $highlight = 'style="background-color: green;"';
                 break;
-            } else $highlight = 'style="background-color: white;"';
+            } else $highlight = 'style=""';
         }
+    }
+
+    for ($j = 0; $j <= count($rows); $j++) {
+        if ($rows[$j - 1]['date_active'] == ($ym . '-' . $day) || $rows[$j - 1]['date_active'] == ($ym . '-0' . $day)) {
+            $optionName = $rows[$j - 1]['option_name'];
+            if (strlen($optionName) > 10) $optionName = substr($optionName, 0, 9) . '...';
+            break;
+        } else $optionName = '';
     }
 
     if ($today == $date) {
         $week .= '<td>' . $day;
     } else {
         $week .= '<td><button class="calendar-button" type="submit" form="calendar" value="' . $day . '" name="calendar-button'
-            . $day . '" ' . $highlight . '>' . $day . '<br>Test' . '</button>';
+            . $day . '" ' . $highlight . '>' . $day . '<br>' . $optionName . '</button>';
     }
     $week .= '</td>';
 
@@ -83,4 +105,3 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
         ?>
     </table>
 </div>
-
