@@ -37,7 +37,7 @@
         <br>
         <br>
 
-        <p>Niste prijavljeni u sustav? <a href="account_creation_page/account_creation.php">Novi račun</a></p>
+        <p>Niste prijavljeni u sustav? <a href="account_creation_page/entry_selection.php">Novi račun</a></p>
         <br>
         <p><a href="guest_page/guest.php">Nastavi kao gost...</a></p>
     </div>

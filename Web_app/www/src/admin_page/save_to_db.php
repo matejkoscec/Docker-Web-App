@@ -16,9 +16,17 @@ if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
         if (isset($_SESSION['selected-button-value-2'])) $sql = "UPDATE eeprom_mirror SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
         if (isset($_SESSION['selected-button-value-3'])) $sql = "UPDATE settings_by_date SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
         if (isset($_SESSION['selected-button-value-4'])) $sql = "UPDATE active_setting SET option_name = ?, time_string = ?, ring_enable = ? WHERE option_name = '" . $_SESSION['to-be-set-active']['option_name'] . "';";
+        if (isset($_POST['eeprom-save'])) {
+            $sql = "INSERT INTO eeprom_mirror (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+            $_SESSION['eeprom-action'] = 'w';
+            checkRecords();
+        }
     } else {
-        if (isset($_POST['db-save'])) $sql = "INSERT INTO time_set (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
-        if (isset($_POST['eeprom-save'])) $sql = "INSERT INTO eeprom_mirror (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+        if (isset($_POST['db-save'])) {
+            $sql = "INSERT INTO time_set (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
+            $_SESSION['eeprom-action'] = 'x';
+            checkRecords();
+        }
     }
     $stmt = mysqli_stmt_init($conn);
 
@@ -35,6 +43,7 @@ if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
 
 
 if (isset($_POST['active-save'])) {
+    
     $sql = "DELETE FROM active_setting WHERE id = 1";
     mysqli_query($conn, $sql);
     $sql = "INSERT INTO active_setting (id, option_name, time_string, ring_enable) VALUES (1, ?, ?, ?);";
@@ -47,6 +56,22 @@ if (isset($_POST['active-save'])) {
         mysqli_stmt_bind_param($stmt, "sss", $_SESSION['to-be-set-active']['option_name'], $_SESSION['to-be-set-active']['time_string'], $_SESSION['to-be-set-active']['ring_enable']);
         mysqli_stmt_execute($stmt);
     }
+
+    $sql = "DELETE FROM settings_by_date WHERE date_active = '" . date('Y-m-d', time()) . "'";
+    mysqli_query($conn, $sql);
+    $sql = "INSERT INTO settings_by_date (date_active, option_name, time_string, ring_enable) VALUES (?, ?, ?, ?);";
+    $stmt = mysqli_stmt_init($conn);
+
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        header("Location: ./admin.php?error=sqlerror");
+        exit();
+    } else {
+        mysqli_stmt_bind_param($stmt, "ssss", date('Y-m-d', time()), $_SESSION['to-be-set-active']['option_name'], $_SESSION['to-be-set-active']['time_string'], $_SESSION['to-be-set-active']['ring_enable']);
+        mysqli_stmt_execute($stmt);
+    }
+
+    $_SESSION['eeprom-action'] = 'a';
+
     header("Location: ./admin.php");
     exit();
 }
@@ -54,24 +79,19 @@ if (isset($_POST['active-save'])) {
 
 if (isset($_POST['delete'])) {
 
-    $_SESSION['to-be-set-active']['option_name'] = NULL;
+    $_SESSION['record-deleted'] = true;
 
-    if (isset($_SESSION['selected-button-value-1'])) $sql = "DELETE FROM time_set WHERE option_name = ?";
-    if (isset($_SESSION['selected-button-value-2'])) $sql = "DELETE FROM eeprom_mirror WHERE option_name = ?";
-    if (isset($_SESSION['selected-button-value-3'])) $sql = "DELETE FROM settings_by_date WHERE date_active = ?";
-    if (isset($_SESSION['selected-button-value-4'])) $sql = "DELETE FROM active_setting WHERE option_name = ?";
-    $stmt = mysqli_stmt_init($conn);
-
-    if (!mysqli_stmt_prepare($stmt, $sql)) {
-        header("Location: ./admin.php?error=sqlerror");
-        exit();
-    } else {
-        if (isset($_SESSION['selected-button-value-1'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['selected-button-value-1']);
-        if (isset($_SESSION['selected-button-value-2'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['selected-button-value-2']);
-        if (isset($_SESSION['selected-button-value-3'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['date-to-parse']);
-        if (isset($_SESSION['selected-button-value-4'])) mysqli_stmt_bind_param($stmt, "s", $_SESSION['selected-button-value-4']);
-        mysqli_stmt_execute($stmt);
+    if (isset($_SESSION['selected-button-value-1'])) $sql = "DELETE FROM time_set WHERE option_name = '" . $_SESSION['selected-button-value-1'] . "';";
+    if (isset($_SESSION['selected-button-value-2'])) $sql = "DELETE FROM eeprom_mirror WHERE option_name = '" . $_SESSION['selected-button-value-2'] . "';";
+    if (isset($_SESSION['selected-button-value-4'])) {
+        $sql = "DELETE FROM active_setting WHERE option_name = '" . $_SESSION['selected-button-value-4'] . "';";
+        $sql .= "DELETE FROM settings_by_date WHERE date_active = '" . $_SESSION['date-to-parse'] . "';";
     }
+    mysqli_multi_query($conn, $sql);
+
+    if (isset($_SESSION['selected-button-value-2'])) $_SESSION['eeprom-action'] = 'd';
+    else $_SESSION['eeprom-action'] = 'x';
+
     header("Location: ./admin.php");
     exit();
 }
@@ -83,6 +103,8 @@ if (isset($_POST['auto-gen'])) {
     $_SESSION['selected-button-value-2'] = NULL;
     $_SESSION['selected-button-value-3'] = NULL;
     $_SESSION['selected-button-value-4'] = NULL;
+
+    $_SESSION['eeprom-action'] = 'x';
 
     autoGenData();
 
@@ -149,7 +171,7 @@ function dataSetup()
             else $tempString = $tempString . $_SESSION['to-be-set-active']['time_string'][$i];
         }
     }
-    $_SESSION['time-string'] = $tempString . '#';
+    $_SESSION['time-string'] = $tempString;
 
 
     $tempString = NULL;
@@ -192,12 +214,18 @@ function autoGenData()
     }
 
     for ($i = 0; $i < 14; $i++) {
+        
         $addMinutes = $_SESSION['len'];
+
         $newMinutes = $timeString[$i * 8 + 2] * 10 + $timeString[$i * 8 + 3] + $addMinutes;
+        $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1];
         if ($newMinutes >= 60) {
-            $newMinutes %= 60;
-            $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1] + 1;
-        } else $newHours = $timeString[$i * 8] * 10 + $timeString[$i * 8 + 1];
+            while ($newMinutes >= 60) {
+                $newMinutes -= 60;
+                $newHours += 1;
+            }
+        }
+        $newHours %= 24;
         if ($newMinutes < 10) $newMinutes = '0' . $newMinutes;
         if ($newHours < 10) $newHours = '0' . $newHours;
 
@@ -209,16 +237,23 @@ function autoGenData()
         else $addMinutes = $_SESSION['break'];
 
         $newMinutes = $timeString[$i * 8 + 6] * 10 + $timeString[$i * 8 + 7] + $addMinutes;
+        $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5];
         if ($newMinutes >= 60) {
-            $newMinutes %= 60;
-            $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5] + 1;
-        } else $newHours = $timeString[$i * 8 + 4] * 10 + $timeString[$i * 8 + 5];
+            while ($newMinutes >= 60) {
+                $newMinutes -= 60;
+                $newHours += 1;
+            }
+        }
+        $newHours %= 24;
         if ($newMinutes < 10) $newMinutes = '0' . $newMinutes;
         if ($newHours < 10) $newHours = '0' . $newHours;
 
         $timeString = $timeString . $newHours . $newMinutes;
+
     }
-    $timeString = $timeString . '#';
+
+    $timeString = $timeString;
     if (!empty($_SESSION['name'])) $_SESSION['option-name'] = $_SESSION['name'];
     $_SESSION['time-string'] = $timeString;
+    
 }

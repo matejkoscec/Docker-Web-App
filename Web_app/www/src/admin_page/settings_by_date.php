@@ -15,12 +15,24 @@ if (isset($_POST['weekend-ignore'])) {
 if (isset($_POST['date-select'])) {
     $_SESSION['date-select-active'] = !$_SESSION['date-select-active'];
     $_SESSION['range-select-active'] = false;
+
+    unset($_SESSION['dateArray']);
+    $_SESSION['dateArray'] = array();
+    $_SESSION['control-index'] = 0;
+    $_SESSION['date1'] = '';
+    $_SESSION['date2'] = '';
 }
 
 
 if (isset($_POST['date-range-select'])) {
     $_SESSION['range-select-active'] = !$_SESSION['range-select-active'];
     $_SESSION['date-select-active'] = false;
+
+    unset($_SESSION['dateArray']);
+    $_SESSION['dateArray'] = array();
+    $_SESSION['control-index'] = 0;
+    $_SESSION['date1'] = '';
+    $_SESSION['date2'] = '';
 }
 
 
@@ -85,7 +97,7 @@ if (isset($_POST['delete'])) {
         <header>
             <?php require '../page_scripts/header.php'; ?>
         </header>
-
+        <p><a href="./admin.php">Povratak na prethodnu stranicu</a></p>
         <section class="section1">
             <div class="menus">
                 <form method="post" id="menu">
@@ -125,13 +137,8 @@ if (isset($_POST['delete'])) {
                         ?>
                     </div>
 
-                    <button class="select" type="submit" form="menu" name="date-select" <?php if ($_SESSION['date-select-active']) echo 'style="background-color: red"'; ?>>Odaberi datum(e)</button>
-                    <br>
-                    <button class="select" type="submit" form="menu" name="date-range-select" <?php if ($_SESSION['range-select-active']) echo 'style="background-color: red"'; ?>>Odaberi raspon datuma</button>
-                    <p><button class="weekend-ignore-check" name="weekend-ignore" value="1"><?php if (!$_SESSION['weekend-ignore']) echo '✔';
-                                                                                            else echo '&nbsp&nbsp&nbsp' ?></button> Zanemari subote i nedjelje</p>
-                    <button class="select" type="submit" form="menu" name="confirm">Spremi promjene</button>
-                    <button class="select" type="submit" form="menu" name="delete">Obriši odabrano</button>
+                    <?php buttonDisplay(); ?>
+
                 </form>
             </div>
             <div class="calendar-wrapper">
@@ -143,15 +150,15 @@ if (isset($_POST['delete'])) {
                 require '../page_scripts/calendar.php';
 
                 ?>
+
             </div>
         </section>
 
         <section class="section2">
-            <?php
 
-            require '../page_scripts/time_display.php';
-
-            ?>
+            <div>
+                <?php require '../page_scripts/time_display.php'; ?>
+            </div>
         </section>
 
         <footer>
@@ -204,6 +211,12 @@ function calendarHandler()
             }
 
 
+            if ($_SESSION['date-select-active']) {
+                getDates();
+                return;
+            }
+
+
             if ($_SESSION['control-index'] == 0) $_SESSION['control-index'] = 1;
             if ($_SESSION['range-select-active']) {
                 getDateEndpoints();
@@ -242,12 +255,64 @@ function calendarHandler()
 }
 
 
-function getDateEndpoints()
+function buttonDisplay()
+{
+    $calendarButtonSet = false;
+    if (!($_SESSION['date-select-active'] || $_SESSION['range-select-active'])) {
+        for ($i = 1; $i <= 31; $i++) {
+            if (isset($_POST['calendar-button' . $i])) {
+                $calendarButtonSet = true;
+                break;
+            }
+        }
+    }
+
+    if (!$calendarButtonSet) {
+        echo '<button class="select" type="submit" form="menu" name="date-select" ';
+        if ($_SESSION['date-select-active']) echo 'style="background-color: red"';
+        echo '>Odaberi datum(e)</button>';
+        echo '<br>';
+        echo '<button class="select" type="submit" form="menu" name="date-range-select" ';
+        if ($_SESSION['range-select-active']) echo 'style="background-color: red"';
+        echo '>Odaberi raspon datuma</button>';
+    }
+
+    if ($_SESSION['date-select-active'] || $_SESSION['range-select-active']) {
+        echo '<br>';
+        echo '<br>';
+        if ($_SESSION['range-select-active']) {
+            echo '<p><button class="weekend-ignore-check" name="weekend-ignore" value="1">';
+            if (!$_SESSION['weekend-ignore']) echo '✔';
+            else echo '&nbsp&nbsp&nbsp';
+            echo '</button> Zanemari subote i nedjelje</p>';
+        }
+        echo '<br>';
+        echo '<button class="select" type="submit" form="menu" name="confirm">Spremi promjene</button>';
+        echo '<button class="select" type="submit" form="menu" name="delete">Obriši odabrano</button>';
+    }
+}
+
+
+function getDates()
 {
     if ($_SESSION['selected-button-value-3'] < 10) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
     if (!empty($_SESSION['selected-button-value-3'])) $selectedDate = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
 
-    if ($_SESSION['selected-button-value-3'] == 0) return;
+    $dateRemoved = false;
+    for ($i = 0; $i < count($_SESSION['dateArray']); $i++) {
+        if ($_SESSION['dateArray'][$i] == $selectedDate) {
+            $_SESSION['dateArray'][$i] = 'unset';
+            $dateRemoved = true;
+        }
+    }
+    if (!$dateRemoved) $_SESSION['dateArray'][count($_SESSION['dateArray'])] = $selectedDate;
+}
+
+
+function getDateEndpoints()
+{
+    if ($_SESSION['selected-button-value-3'] < 10) $_SESSION['selected-button-value-3'] = '0' . $_SESSION['selected-button-value-3'];
+    if (!empty($_SESSION['selected-button-value-3'])) $selectedDate = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value-3'];
 
     if ($selectedDate == $_SESSION['date1']) {
         $_SESSION['date1'] = '';
@@ -305,4 +370,3 @@ function getDateRange()
         }
     }
 }
-

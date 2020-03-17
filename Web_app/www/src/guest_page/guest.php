@@ -10,10 +10,8 @@ require '../page_scripts/dbh.php';
 <html>
 
 <head>
-
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="style/guest_page_style.css">
-
 </head>
 
 <body>
@@ -33,11 +31,11 @@ require '../page_scripts/dbh.php';
         <h3>Naziv: </h3>
         <?php
 
-        $sql = "SELECT * FROM active_setting WHERE id = 1";
+        $sql = "SELECT * FROM active_setting WHERE id = 1;";
         $result = mysqli_query($conn, $sql);
         $row = mysqli_fetch_assoc($result);
 
-        require '../page_scripts/time_display.php';
+        require '../page_scripts/user_time_display.php';
 
         ?>
 

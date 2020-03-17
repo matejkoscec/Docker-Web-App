@@ -74,7 +74,7 @@
 
     echo '<tr><td>';
     $allowCalc = true;
-    for ($i = strlen($_SESSION['to-be-set-active']['time_string']) / 2; $i < strlen($_SESSION['to-be-set-active']['time_string']); $i++) {
+    for ($i = floor(strlen($_SESSION['to-be-set-active']['time_string']) / 2); $i <= strlen($_SESSION['to-be-set-active']['time_string']); $i++) {
 
         if ($i % 8 == 2) echo ':';
         if ($i % 8 == 4) echo ' - ';
@@ -82,7 +82,7 @@
 
         if ($i % 8 == 0) {
 
-            if ($i != strlen($_SESSION['to-be-set-active']['time_string']) / 2) {
+            if ($i != floor(strlen($_SESSION['to-be-set-active']['time_string']) / 2)) {
                 echo '</td><td>';
                 if ($_SESSION['to-be-set-active']['ring_enable'][$i / 8 - 1] == 1) echo '✔';
             }

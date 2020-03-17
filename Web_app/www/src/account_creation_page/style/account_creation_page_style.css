@@ -1,17 +1,14 @@
-*
-{
+* {
     margin: 0;
     padding: 0;
 }
 
-.wrapper
-{
+.wrapper {
     margin: auto;
     width: 1000px;
 }
 
-h2
-{
+h2 {
     text-decoration: none;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 20px;
@@ -19,8 +16,7 @@ h2
     text-align: center;
 }
 
-input
-{
+input {
     display: block;
     margin: auto;
     width: 300px;
@@ -28,8 +24,7 @@ input
     text-align: center;
 }
 
-select
-{
+select {
     display: block;
     margin: auto;
     width: 200px;
@@ -38,44 +33,43 @@ select
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
     font-weight: lighter;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
 }
 
-button
-{
-	background-color: #599bb3;
-	border-radius: 10px;
-	display: block;
-	cursor: pointer;
-	color: #ffffff;
-	font-family: Arial;
-	font-size: 20px;
-	font-weight: bold;
-	padding: 15px 30px;
+button {
+    background-color: #599bb3;
+    border-radius: 10px;
+    display: block;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: Arial;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 15px 30px;
     text-decoration: none;
     margin: auto;
 }
 
-button:hover
-{
-	background-color: #408c99;
+button:hover {
+    background-color: #408c99;
 }
 
-button:active 
-{
-	position: relative;
-	top: 1px;
+button:active {
+    position: relative;
+    top: 1px;
 }
 
-p
-{
+p {
     text-align: center;
     text-decoration: none;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: lighter;
 }
 
-a
-{
+a {
     text-align: center;
     text-decoration: underline;
     font-family: Arial, Helvetica, sans-serif;

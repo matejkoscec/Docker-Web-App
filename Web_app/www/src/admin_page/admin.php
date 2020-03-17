@@ -25,6 +25,19 @@ if (isset($_POST['form-reset'])) {
     $saveEnable = false;
 } else $saveEnable = true;
 
+if ($_SESSION['record-deleted']) {
+    $_SESSION['option-name'] = NULL;
+    $_SESSION['time-string'] = NULL;
+    $_SESSION['ring-enable'] = NULL;
+    $_SESSION['selected-button-value-1'] = NULL;
+    $_SESSION['selected-button-value-2'] = NULL;
+    $_SESSION['selected-button-value-3'] = NULL;
+    $_SESSION['selected-button-value-4'] = NULL;
+    $saveEnable = false;
+} else $saveEnable = true;
+
+globalDataSetup();
+
 ?>
 
 <!DOCTYPE html>
@@ -42,26 +55,26 @@ if (isset($_POST['form-reset'])) {
         <header>
             <?php require '../page_scripts/header.php'; ?>
         </header>
-
+        <p><a href="../user_page/user.php">Povratak na prethodnu stranicu</a></p>
         <section class="section1">
             <form action="save_to_db.php" method="post" id="auto-time-set">
                 <div class="settings-left">
                     <h2>Naziv postavke</h2>
                     <input class="option-name" type="text" maxlength="50" name="name" placeholder="<?php echo $_SESSION['name']; ?>">
                     <h2>Početak jutarnje smjene</h2>
-                    <input type="text" name="start-hours" maxlength="2" placeholder="<?php echo $_SESSION['sh']; ?>">
+                    <input type="text" name="start-hours" maxlength="2" placeholder="<?php echo $_SESSION['sh']; ?>" pattern="([01]?[0-9]|2[0-3])">
                     :
-                    <input type="text" name="start-minutes" maxlength="2" placeholder="<?php echo $_SESSION['sm']; ?>">
-                    <h2>Trajanje sata (min)</h2>
-                    <input class="option-name" type="text" name="class-len" maxlength="50" placeholder="<?php echo $_SESSION['len']; ?>">
+                    <input type="text" name="start-minutes" maxlength="2" placeholder="<?php echo $_SESSION['sm']; ?>" pattern="([0-5][0-9])">
+                    <h2>Trajanje nastavnog sata (min)</h2>
+                    <input class="option-time" type="text" name="class-len" maxlength="3" placeholder="<?php echo $_SESSION['len']; ?>" pattern="([2-9][0-9]|[1-2][0-9][0-9]|[3][0][0])">
                 </div>
                 <div class="settings-right">
                     <h2>Trajanje malih odmora (min)</h2>
-                    <input class="option-name" type="text" name="break" maxlength="50" placeholder="<?php echo $_SESSION['break']; ?>">
+                    <input class="option-time" type="text" name="break" maxlength="3" placeholder="<?php echo $_SESSION['break']; ?>" pattern="([0-9]|[1][0])">
                     <h2>Trajanje velikih odmora (min)</h2>
-                    <input class="option-name" type="text" name="long-break" maxlength="50" placeholder="<?php echo $_SESSION['l-break']; ?>">
+                    <input class="option-time" type="text" name="long-break" maxlength="3" placeholder="<?php echo $_SESSION['l-break']; ?>" pattern="([1-9][0-9]|[1-2][0-9][0-9]|[3][0][0])">
                     <h2>Pauza između smjena (min)</h2>
-                    <input class="option-name" type="text" name="shift-break" maxlength="50" placeholder="<?php echo $_SESSION['s-break']; ?>">
+                    <input class="option-time" type="text" name="shift-break" maxlength="3" placeholder="<?php echo $_SESSION['s-break']; ?>" pattern="([0-9]|[1-9][0-9]|[1-9][0-9][0-9])">
                     <br>
                 </div>
             </form>
@@ -73,7 +86,7 @@ if (isset($_POST['form-reset'])) {
         <section class="section2">
             <div class="menus">
                 <form method="post" id="menu">
-                    <h2>Aktivna postavka</h2>
+                    <h2>Aktivna postavka (<?php echo date('d.m.Y', time()); ?>)</h2>
                     <div class="vertical_menu">
                         <?php
 
@@ -128,22 +141,33 @@ if (isset($_POST['form-reset'])) {
                     </div>
                 </form>
                 <form id="set-active" action="save_to_db.php" method="post">
-                    <button class="select" type="submit" form="set-active" name="active-save">Postavi kao aktivno</button>
-                    <button class="select" type="submit" form="set-active" name="delete">Obriši postavku</button>
+                    <?php
+                    
+                    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
+                        if (!isset($_SESSION['selected-button-value-4'])) echo '<button class="select" type="submit" form="set-active" name="active-save">Postavi kao aktivno</button>';
+                        echo '<button class="select" type="submit" form="set-active" name="delete">Obriši postavku</button>';
+                    }
+                    
+                    ?>
                 </form>
             </div>
             <div class="manual-setup-tables">
-                <?php
-
-                manualSetup();
-
-                require 'manual_edit.php';
-
-                ?>
+                <form action="save_to_db.php" method="post" id="time_set">
+                    <?php require 'manual_edit.php'; ?>
+                </form>
 
                 <div class="buttons">
-                    <form action="admin.php" id="reset" method="post" style="display: inline-block;"><button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button></form><?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>'; ?>
-                    <?php if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="eeprom-save">Spremi na arduino</button>'; ?>
+                    <form action="admin.php" id="reset" method="post" style="display: inline-block;">
+                        <button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button>
+                    </form>
+                    <?php
+                    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
+                        echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi promjene</button>';
+                        if ($saveEnable && isset($_SESSION['selected-button-value-1'])) echo '<button class="select" type="submit" form="time_set" name="eeprom-save">Spremi na arduino</button>';
+                    } else {
+                        if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>';
+                    }
+                    ?>
                 </div>
             </div>
 
@@ -161,7 +185,7 @@ if (isset($_POST['form-reset'])) {
 
 <?php
 
-function manualSetup()
+function globalDataSetup()
 {
     require '../page_scripts/dbh.php';
 
@@ -178,6 +202,8 @@ function manualSetup()
 
             $_SESSION['option-name'] = NULL;
             $_SESSION['time-string'] = NULL;
+
+            $_SESSION['eeprom-action'] = 'x';
 
             for ($i = 0; $i < $numOfResults; $i++) {
                 if (isset($_POST['ts-button' . $i])) {
@@ -243,7 +269,7 @@ function manualSetup()
                 }
                 $_SESSION['to-be-set-active'] = $row;
             }
-        } else {
+        } else if (!$_SESSION['record-deleted']) {
             if (isset($_SESSION['selected-button-value-1'])) $sql = 'SELECT * FROM time_set WHERE option_name = \'' . $_SESSION['selected-button-value-1'] . '\'';
             if (isset($_SESSION['selected-button-value-2'])) $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['selected-button-value-2'] . '\'';
             if (isset($_SESSION['selected-button-value-3'])) $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $_SESSION['date-to-parse'] . '\'';
@@ -262,4 +288,6 @@ function manualSetup()
             }
         }
     }
+
+    $_SESSION['record-deleted'] = false;
 }
