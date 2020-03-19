@@ -25,10 +25,10 @@ IPAddress myDns(192, 168, 1, 1);
 // initialize the library instance:
 EthernetClient client;
 
-char server[] = "192.168.1.11";
+char server[] = "192.168.1.102";
 
 unsigned long lastConnectionTime = 0;           // last time you connected to the server, in milliseconds
-const unsigned long postingInterval = 15000;     // delay between updates, in milliseconds
+const unsigned long postingInterval = 5000;     // delay between updates, in milliseconds
 unsigned long lastConnectionAttempt = 0;
 
 bool httpRequestActive = false;
@@ -42,6 +42,7 @@ struct time_
   int location;
   String option_name;
   String option_value;
+  String ring_enable;
 };
 
 uint8_t struct_size = sizeof(time_);
@@ -108,11 +109,14 @@ void setup()
   pinMode(button_down, INPUT_PULLUP);
   pinMode(button_ok, INPUT_PULLUP);
   pinMode(button_ring, INPUT_PULLUP);
-  Serial.println(digitalRead(button_ring));
+
   attachInterrupt(digitalPinToInterrupt(button_up), pointerUp, LOW);
   attachInterrupt(digitalPinToInterrupt(button_down), pointerDown, LOW);
   attachInterrupt(digitalPinToInterrupt(button_ok), select, LOW);
   attachInterrupt(digitalPinToInterrupt(button_ring), ring, LOW);
+
+  rtc.begin();
+  delay(100);
 
   lcd.init();
   lcd.backlight();
@@ -121,22 +125,22 @@ void setup()
   lcd.createChar(1, arrowUp);
   lcd.clear();
 
-  rtc.begin();
-  
   time_set[0] = {
     0,
     "Standardno",
-    "07300815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
+    "0730081508200905091010551015110011051150115512401245133013351420142515101515160016051650171017551800184518501935",
+    "11111111111111"
   };
   EEPROM.put(time_set[0].location, time_set[0]);
 
   time_set[1] = {
     struct_size,
     "Standardno",
-    "07300815090509551015110011051150115512401245133013351420142515101515160016201705171017551800184518501935#"
+    "0730081508200905091010551015110011051150115512401245133013351420142515101515160016051650171017551800184518501935",
+    "11111111111111"
   };
   EEPROM.put(time_set[1].location, time_set[1]);
-  
+
   updateStruct();
 
   activeRingingSetup();
@@ -165,7 +169,7 @@ void loop()
   if (serverAvailable)
   {
     readServerData();
-  
+
     if (millis() - lastConnectionTime > postingInterval)
     {
       httpRequest();
@@ -284,7 +288,7 @@ void httpRequest()
 
   if (client.connect(server, 8080))
   {
-    client.println("POST /index.php HTTP/1.1");
+    client.println("POST /arduino_data.php HTTP/1.1");
     client.println("Host: 192.168.1.11:8080");
     client.println("User-Agent: arduino-ethernet");
     client.println("Connection: close");
@@ -331,49 +335,32 @@ void eepromManage(String string)
     }
   }
 
-  /*if (string[1] == 'r')
-    {
-    Serial.print("\nread\n");
-    EEPROM.get(0, time_get);
-    string.remove(string.length() - 1);
-    if (time_get.option_name.compareTo(string.substring(2)) == 0)
-    {
-      string = "_string=";
-      char temp[200];
-      time_get.option_name.toCharArray(temp, 200);
-      string.concat(temp);
-      string.concat("?");
-      time_get.option_value.toCharArray(temp, 200);
-      string.concat(temp);
-      _string = string;
-      _string.remove(_string.length() - 1);
-      return;
-    }
-    _string ="_string=x";
-    }*/
-
   if (string[1] == 'w')
   {
     if (write_index == NULL) return;
 
     time_get.location = write_index;
+    time_get.option_name = "";
+    time_get.option_value = "";
+    time_get.ring_enable = "";
     Serial.print("\nwrite\n");
-    int t = 0;
-    for (int i = 2; i < string.length(); i++)
+    int i = 2;
+    while (string[i] != '?')
     {
-      if (t == 0 && string[i] != '?') time_get.option_name.concat(string[i]);
-      else
-      {
-        time_get.option_name.concat('\0');
-        if (t == 0) i++;
-        t = 1;
-      }
-
-      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value.concat(string[i]);
-      else if (t == 1)
-      {
-        break;
-      }
+      time_get.option_name += string[i];
+      i++;
+    }
+    i++;
+    while (string[i] != '?')
+    {
+      time_get.option_value += string[i];
+      i++;
+    }
+    i++;
+    while (string[i] != '#')
+    {
+      time_get.ring_enable += string[i];
+      i++;
     }
 
     EEPROM.put(time_get.location, time_get);
@@ -384,23 +371,27 @@ void eepromManage(String string)
     if (write_index == NULL) return;
 
     time_get.location = 0;
-    Serial.print("\active\n");
-    int t = 0;
-    for (int i = 2; i < string.length(); i++)
+    time_get.option_name = "";
+    time_get.option_value = "";
+    time_get.ring_enable = "";
+    Serial.print("\nwrite\n");
+    int i = 2;
+    while (string[i] != '?')
     {
-      if (t == 0 && string[i] != '?') time_get.option_name.concat(string[i]);
-      else
-      {
-        time_get.option_name.concat('\0');
-        if (t == 0) i++;
-        t = 1;
-      }
-
-      if (t == 1 && (string[i] != '#' || string[i] != '\0')) time_get.option_value.concat(string[i]);
-      else if (t == 1)
-      {
-        break;
-      }
+      time_get.option_name += string[i];
+      i++;
+    }
+    i++;
+    while (string[i] != '?')
+    {
+      time_get.option_value += string[i];
+      i++;
+    }
+    i++;
+    while (string[i] != '#')
+    {
+      time_get.ring_enable += string[i];
+      i++;
     }
 
     EEPROM.put(time_get.location, time_get);
@@ -420,6 +411,8 @@ void updateStruct()
     //Serial.println(time_set[i / struct_size].location);
     //Serial.println(time_set[i / struct_size].option_name);
     //Serial.println(time_set[i / struct_size].option_value);
+    //Serial.println(time_set[i / struct_size].ring_enable);
+    //Serial.println();
   }
 }
 
@@ -443,14 +436,14 @@ int getWriteIndex()
 
 void moveRecords (int index)
 {
-  updateStruct();
-
   for (int i = index / struct_size; i < 100; i++)
   {
     if (time_set[i].location != 0) time_set[i].location -= struct_size;
   }
 
   for (int i = index; i < struct_size * max_records; i += struct_size) EEPROM.put(i, time_set[i / struct_size + 1]);
+
+  updateStruct();
 
   return;
 }
@@ -568,7 +561,7 @@ void ring()
 void pointerUp()
 {
   now = millis();
-  
+
   if (allowButton)
   {
     pointerIndex--;
@@ -617,7 +610,7 @@ void pointerUp()
 void pointerDown()
 {
   now = millis();
-  
+
   if (allowButton)
   {
     pointerIndex++;
@@ -667,7 +660,7 @@ void pointerDown()
 void select()
 {
   now = millis();
-  
+
   if (allowButton)
   {
     lcdNotCleared = true;
