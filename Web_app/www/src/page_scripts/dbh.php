@@ -23,3 +23,6 @@ $conn->query("CREATE TABLE IF NOT EXISTS eeprom_mirror ( id int PRIMARY KEY AUTO
 $conn->query("CREATE TABLE IF NOT EXISTS active_setting ( id int NOT NULL, option_name varchar(50) NOT NULL, time_string TINYTEXT NOT NULL, ring_enable TINYTEXT NOT NULL);");
 
 $conn->query("CREATE TABLE IF NOT EXISTS settings_by_date ( date_active DATE PRIMARY KEY NOT NULL, option_name varchar(50) NOT NULL, time_string TINYTEXT NOT NULL, ring_enable TINYTEXT NOT NULL);");
+
+$conn->query("CREATE TABLE IF NOT EXISTS arduino_command ( eeprom_action varchar(1) PRIMARY KEY NOT NULL, option_name varchar(50) NOT NULL, time_string TINYTEXT NOT NULL, ring_enable TINYTEXT NOT NULL);");
+

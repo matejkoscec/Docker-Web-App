@@ -1,6 +1,13 @@
 <?php
 
+session_start();
+
 require './page_scripts/dbh.php';
+
+date_default_timezone_set('Europe/Zagreb');
+
+
+if (!isset($_SESSION['eeprom-action'])) $_SESSION['eeprom-action'] = 'x';
 
 $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . date('Y-m-d', time()) . '\'';
 $result = mysqli_query($conn, $sql);
@@ -30,8 +37,6 @@ if (!empty($result)) {
                 mysqli_stmt_bind_param($stmt, "sss", $sbdRow['option_name'], $sbdRow['time_string'], $sbdRow['ring_enable']);
                 mysqli_stmt_execute($stmt);
             }
-
-            arduinoDataSetup();
         }
     } else {
 
@@ -45,39 +50,23 @@ if (!empty($result)) {
             mysqli_stmt_bind_param($stmt, "sss", $sbdRow['option_name'], $sbdRow['time_string'], $sbdRow['ring_enable']);
             mysqli_stmt_execute($stmt);
         }
-
-        arduinoDataSetup();
     }
 }
 
-$sql = "SELECT * FROM arduino_command;";
+
+if ($_SESSION['eeprom-action'] == 'w') $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['to-be-set-active']['option_name'] . '\';';
+if ($_SESSION['eeprom-action'] == 'a') $sql = 'SELECT * FROM active_setting WHERE id = 1';
+if ($_SESSION['eeprom-action'] == 'd') $row['option_name'] = $_SESSION['to-be-set-active']['option_name'];
+
 $result = mysqli_query($conn, $sql);
 
-if (!empty($result)) $row = mysqli_fetch_assoc($result);
+$sql = "INSERT INTO eeprom_command ( eeprom_action, option_name, option_value, ring_enable) VALUES (?, ?, ?, ?);";
+$stmt = mysqli_stmt_init($conn);
 
-echo '#' . $row['eeprom_action'] . $row['option_name'] . '?' . $row['time_string'] . '?' . $row['ring_enable'] . '#';
-
-
-
-function arduinoDataSetup()
-{
-    require './page_scripts/dbh.php';
-
-    $sql = "DELETE FROM arduino_command;";
-    mysqli_query($conn, $sql);
-
-    $sql = 'SELECT * FROM active_setting WHERE id = 1';
-    $result = mysqli_query($conn, $sql);
-    if (!empty($result)) $row = mysqli_fetch_assoc($result);
-
-    $sql = "INSERT INTO arduino_command ( eeprom_action, option_name, time_string, ring_enable ) VALUES ('a', ?, ?, ?);";
-    $stmt = mysqli_stmt_init($conn);
-
-    if (!mysqli_stmt_prepare($stmt, $sql)) {
-        header("Location: ./admin.php?error=sqlerror");
-        exit();
-    } else {
-        mysqli_stmt_bind_param($stmt, "sss", $row['option_name'], $row['time_string'], $row['ring_enable']);
-        mysqli_stmt_execute($stmt);
-    }
+if (!mysqli_stmt_prepare($stmt, $sql)) {
+    header("Location: ./arduino_data_setup.php?error=sqlerror");
+    exit();
+} else {
+    mysqli_stmt_bind_param($stmt, "ssss", $_SESSION['eeprom-action'], $row['option_name'], $row['time_string'], $row['ring_enable']);
+    mysqli_stmt_execute($stmt);
 }

@@ -6,6 +6,9 @@ require '../page_scripts/dbh.php';
 
 require '../page_scripts/admin_check.php';
 
+date_default_timezone_set('Europe/Zagreb');
+
+
 if (isset($_POST['form-reset'])) {
     $_SESSION['option-name'] = NULL;
     $_SESSION['time-string'] = NULL;
@@ -37,6 +40,7 @@ if ($_SESSION['record-deleted']) {
 } else $saveEnable = true;
 
 globalDataSetup();
+arduinoDataSetup();
 
 ?>
 
@@ -86,7 +90,7 @@ globalDataSetup();
         <section class="section2">
             <div class="menus">
                 <form method="post" id="menu">
-                    <h2>Aktivna postavka (<?php echo date('d.m.Y', time()); ?>)</h2>
+                    <h2>Aktivna postavka (<?php echo date('d.m.Y.', time()); ?>)</h2>
                     <div class="vertical_menu">
                         <?php
 
@@ -142,12 +146,12 @@ globalDataSetup();
                 </form>
                 <form id="set-active" action="save_to_db.php" method="post">
                     <?php
-                    
+
                     if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
                         if (!isset($_SESSION['selected-button-value-4'])) echo '<button class="select" type="submit" form="set-active" name="active-save">Postavi kao aktivno</button>';
                         echo '<button class="select" type="submit" form="set-active" name="delete">Obriši postavku</button>';
                     }
-                    
+
                     ?>
                 </form>
             </div>
@@ -290,4 +294,48 @@ function globalDataSetup()
     }
 
     $_SESSION['record-deleted'] = false;
+}
+
+
+function arduinoDataSetup()
+{
+    require '../page_scripts/dbh.php';
+
+    if (!isset($_SESSION['eeprom-action'])) $_SESSION['eeprom-action'] = 'x';
+
+    $sql = "DELETE FROM arduino_command;";
+    mysqli_query($conn, $sql);
+
+    if ($_SESSION['eeprom-action'] != 'x') {
+        
+        if ($_SESSION['eeprom-action'] == 'w') {
+            $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['to-be-set-active']['option_name'] . '\';';
+            $result = mysqli_query($conn, $sql);
+            if (!empty($result)) $row = mysqli_fetch_assoc($result);
+        }
+        if ($_SESSION['eeprom-action'] == 'a') {
+            $sql = 'SELECT * FROM active_setting WHERE id = 1';
+            $result = mysqli_query($conn, $sql);
+            if (!empty($result)) $row = mysqli_fetch_assoc($result);
+        }
+        if ($_SESSION['eeprom-action'] == 'd') {
+            $row['option_name'] = $_SESSION['to-be-set-active']['option_name'];
+            $row['time_string'] = '';
+            $row['ring_enable'] = '';
+        }
+
+        $sql = "INSERT INTO arduino_command ( eeprom_action, option_name, time_string, ring_enable ) VALUES (?, ?, ?, ?);";
+        $stmt = mysqli_stmt_init($conn);
+
+        if (!mysqli_stmt_prepare($stmt, $sql)) {
+            header("Location: ./admin.php?error=sqlerror");
+            exit();
+        } else {
+            mysqli_stmt_bind_param($stmt, "ssss", $_SESSION['eeprom-action'], $row['option_name'], $row['time_string'], $row['ring_enable']);
+            mysqli_stmt_execute($stmt);
+        }
+    } else {
+        $sql = "INSERT INTO arduino_command ( eeprom_action, option_name, time_string, ring_enable ) VALUES ('x', 'x', 'x', 'x');";
+        mysqli_query($conn, $sql);
+    }
 }
