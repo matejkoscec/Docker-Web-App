@@ -19,17 +19,16 @@ if (isset($_POST['db-save']) || isset($_POST['eeprom-save'])) {
         if (isset($_POST['eeprom-save'])) {
             $sql = "INSERT INTO eeprom_mirror (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
             $_SESSION['eeprom-action'] = 'w';
-            checkRecords();
         }
     } else {
         if (isset($_POST['db-save'])) {
             $sql = "INSERT INTO time_set (option_name, time_string, ring_enable) VALUES (?, ?, ?);";
             $_SESSION['eeprom-action'] = 'x';
-            checkRecords();
         }
     }
     $stmt = mysqli_stmt_init($conn);
 
+    checkRecords();
     if (!mysqli_stmt_prepare($stmt, $sql)) {
         header("Location: ./admin.php?error=sqlerror");
         exit();

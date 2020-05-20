@@ -4,7 +4,6 @@
     </tr>
     <?php
 
-    echo '<p>' . $row['option_name'] . '</p>';
     echo '<br>';
     echo '<tr><td>';
     $allowCalc = true;
@@ -68,13 +67,13 @@
 
 <table class="time-display-table">
     <tr>
-        <?php if (isset($row)) echo '<td colspan="2" style="text-align: center;">Popodnevna smjena</td>' ?>
+        <?php if (isset($row)) echo '<td colspan="2" style="text-align: center;">Popodnevna smjena</td><td style="text-align: center;">Zvoni</td>' ?>
     </tr>
     <?php
 
     echo '<tr><td>';
     $allowCalc = true;
-    for ($i = strlen($row['time_string']) / 2; $i < strlen($row['time_string']); $i++) {
+    for ($i = strlen($row['time_string']) / 2; $i <= strlen($row['time_string']); $i++) {
 
         if ($i % 8 == 2) echo ':';
         if ($i % 8 == 4) echo ' - ';

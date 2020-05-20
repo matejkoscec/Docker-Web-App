@@ -17,7 +17,7 @@
             if (isset($_GET['error'])) {
 
                 if ($_GET['error'] == "emptyfields") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Popunite sva polja.</p><br>';
-                if ($_GET['error'] == "invaliduid") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Za korisničko ime koristite slova i brojke.</p><br>';
+                if ($_GET['error'] == "invaliduid") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">U korisničkom imenu koristite slova, brojke, "." ili "_".</p><br>';
                 if ($_GET['error'] == "passwordcheck") echo '<br><p style="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Lozinke se ne poklapaju</p><br>';
                 if ($_GET['error'] == "usertaken") echo '<br><p cstyle="color: red; font-family: Arial, Helvetica, sans-serif; font-weight: lighter;">Korisničko ime je već u uporabi.</p><br>';
 

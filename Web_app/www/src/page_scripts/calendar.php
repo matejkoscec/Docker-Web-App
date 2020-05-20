@@ -49,7 +49,7 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
     if (!empty($_SESSION['dateArray'])) {
         for ($j = 0; $j <= count($_SESSION['dateArray']); $j++) {
             if ($_SESSION['dateArray'][$j] == ($ym . '-' . $day) || $_SESSION['dateArray'][$j] == ($ym . '-0' . $day)) {
-                $highlight = 'style="background-color: green;"';
+                $highlight = 'style="background-color: #599bb3;"';
                 break;
             } else $highlight = 'style=""';
         }
@@ -67,7 +67,7 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
         $week .= '<td>' . $day;
     } else {
         $week .= '<td><button class="calendar-button" type="submit" form="calendar" value="' . $day . '" name="calendar-button'
-            . $day . '" ' . $highlight . '>' . $day . '<br>' . $optionName . '</button>';
+            . $day . '" ' . $highlight . '>' . $day . '.<br>' . $optionName . '</button>';
     }
     $week .= '</td>';
 
@@ -84,7 +84,10 @@ for ($day = 1; $day <= $daysInAMonth; $day++, $str++) {
 
 ?>
 
-<h4><a href="?ym=<?php echo $prev; ?>">&lt; </a><?php echo $_SESSION['calendar-date']; ?> <a href="?ym=<?php echo $next; ?>">&gt;</a></h4>
+<a class="calendar-swipe" href="?ym=<?php echo $prev; ?>">&lt;</a>
+<h4>&nbsp;&nbsp;<?php echo $_SESSION['calendar-date']; ?>&nbsp;&nbsp;</h4>
+<a class="calendar-swipe" href="?ym=<?php echo $next; ?>">&gt;</a>
+<br><br>
 <div class="calendar">
     <table>
         <tr>

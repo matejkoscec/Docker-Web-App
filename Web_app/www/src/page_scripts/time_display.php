@@ -1,6 +1,6 @@
-<table class="time-display-table">
+<table class="time-display-table" style="border-top-left-radius: 10px;">
     <tr>
-        <?php if (isset($_SESSION['to-be-set-active'])) echo '<td colspan="2" style="text-align: center;">Jutarnja smjena</td><td style="text-align: center;">Zvoni</td>' ?>
+        <?php if (isset($_SESSION['to-be-set-active'])) echo '<th colspan="2" style="text-align: center;">Jutarnja smjena</th><th style="text-align: center;">Zvoni</th>' ?>
     </tr>
     <?php
 
@@ -66,9 +66,9 @@
 
 </table>
 
-<table class="time-display-table">
+<table class="time-display-table" style="border-bottom-right-radius: 10px;">
     <tr>
-        <?php if (isset($_SESSION['to-be-set-active'])) echo '<td colspan="2" style="text-align: center;">Popodnevna smjena</td>' ?>
+        <?php if (isset($_SESSION['to-be-set-active'])) echo '<th colspan="2" style="text-align: center;">Popodnevna smjena</th><th style="text-align: center;">Zvoni</th>' ?>
     </tr>
     <?php
 

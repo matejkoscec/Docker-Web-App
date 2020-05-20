@@ -18,6 +18,7 @@
             <br><br>
             <h2>Lozinka:</h2>
             <br><input type="password" name="pwd"><br>
+            <br>
         </form>
 
         <?php

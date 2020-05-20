@@ -6,7 +6,7 @@
 
 .wrapper {
     margin: auto;
-    padding: 0;
+    padding: 0px;
     width: 1000px;
     position: relative;
 }
@@ -21,22 +21,11 @@ h2 {
 
 h3 {
     text-decoration: none;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: lighter;
+    color: white;
     text-align: center;
-    display: inline;
-}
-
-h4 {
-    text-align: center;
-    margin: auto;
-}
-
-input {
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    text-align: center;
 }
 
 .select {
@@ -50,7 +39,8 @@ input {
     font-weight: bold;
     padding: 5px 10px;
     text-decoration: none;
-    margin: auto;
+    margin-left: auto;
+    margin-right: 0;
 }
 
 .select:hover {
@@ -65,10 +55,11 @@ input {
 header {
     display: flex;
     flex-direction: row;
-}
-
-section {
-    margin: 50px 0;
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #599bb3;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 
 .section1 {
@@ -91,21 +82,33 @@ section {
 
 .calendar-wrapper {
     margin: auto;
-    justify-content: center;
+    text-align: center;
+    min-height: 650px;
+    min-width: 600px;
+    border: 1px solid #408c99;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    border-bottom: 5px solid #408c99;
+    border-right: 5px solid #408c99;
+    padding: 10px;
 }
 
 .calendar {
     display: block;
+    padding: 0 10px;
 }
 
 .calendar-button {
     border: none;
+    border-radius: 10px;
     width: 80px;
     height: 80px;
+    border-right: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
 }
 
 .calendar-button:hover {
-    background-color: lightgreen;
+    background-color: #408c99;
 }
 
 footer {
@@ -114,12 +117,75 @@ footer {
 }
 
 .time-display-table {
-    display: inline-block;
+    display: block;
     width: 300px;
-    border: 1px solid black;
+    border: 2px solid black;
+    font-size: 18px;
+    padding: 10px;
+}
+
+td {
+    text-align: right;
+}
+
+th {
+    padding: 10px 0px;
+    border-bottom: 1px solid rgb(156, 156, 156);
+    border-radius: 5px;
+}
+
+.calendar-swipe {
+    text-decoration: none;
+    font-weight: bolder;
+    font-size: 50px;
+    margin-top: 50px;
+    background-color: #599bb3;
+    padding: 0 70px;
+    color: white;
+    border-radius: 50px;
+}
+
+h4 {
+    text-align: center;
+    margin: auto;
+    text-decoration: none;
+    font-size: 40px;
+    display: inline;
+}
+
+.setup {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    font-size: 24px;
+    color: #599bb3;
+    display: block;
+    text-align: center;
+}
+
+.setup:hover {
+    color: #408c99;
 }
 
 .weekend-ignore-check {
     min-width: 10px;
     min-height: 10px;
+}
+
+#logout {
+    display: inline-block;
+    margin: auto;
+}
+
+input {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+p {
+    font-size: 20px;
+    max-width: 300px;
+    word-break: break-all;
 }

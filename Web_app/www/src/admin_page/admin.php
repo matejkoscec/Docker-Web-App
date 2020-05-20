@@ -59,39 +59,63 @@ arduinoDataSetup();
         <header>
             <?php require '../page_scripts/header.php'; ?>
         </header>
-        <p><a href="../user_page/user.php">Povratak na prethodnu stranicu</a></p>
-        <section class="section1">
+        <br>
+        <a class="setup" href="../user_page/user.php">↶ Povratak na prethodnu stranicu</a>
+        <br>
+        <a class="setup" style="text-align: right;" href="./settings_by_date.php">📅 Raspored zvona</a>
+        <br>
+        <section class="section1" style="display: block;">
             <form action="save_to_db.php" method="post" id="auto-time-set">
                 <div class="settings-left">
                     <h2>Naziv postavke</h2>
                     <input class="option-name" type="text" maxlength="50" name="name" placeholder="<?php echo $_SESSION['name']; ?>">
+                    <br><br>
                     <h2>Početak jutarnje smjene</h2>
-                    <input type="text" name="start-hours" maxlength="2" placeholder="<?php echo $_SESSION['sh']; ?>" pattern="([01]?[0-9]|2[0-3])">
-                    :
-                    <input type="text" name="start-minutes" maxlength="2" placeholder="<?php echo $_SESSION['sm']; ?>" pattern="([0-5][0-9])">
+                    <input class="option-time" type="text" name="start-hours" maxlength="2" placeholder="<?php echo $_SESSION['sh']; ?>" pattern="([01]?[0-9]|2[0-3])">
+                    <h2 style="display: inline; font-weight: bolder;">:</h2>
+                    <input class="option-time" type="text" name="start-minutes" maxlength="2" placeholder="<?php echo $_SESSION['sm']; ?>" pattern="([0-5][0-9])">
+                    <p>Format: 00:00</p>
+                    <br><br>
                     <h2>Trajanje nastavnog sata (min)</h2>
                     <input class="option-time" type="text" name="class-len" maxlength="3" placeholder="<?php echo $_SESSION['len']; ?>" pattern="([2-9][0-9]|[1-2][0-9][0-9]|[3][0][0])">
+                    <p>20 - 300 min</p>
                 </div>
                 <div class="settings-right">
                     <h2>Trajanje malih odmora (min)</h2>
                     <input class="option-time" type="text" name="break" maxlength="3" placeholder="<?php echo $_SESSION['break']; ?>" pattern="([0-9]|[1][0])">
+                    <p>0 - 10 min</p>
+                    <br><br>
                     <h2>Trajanje velikih odmora (min)</h2>
                     <input class="option-time" type="text" name="long-break" maxlength="3" placeholder="<?php echo $_SESSION['l-break']; ?>" pattern="([1-9][0-9]|[1-2][0-9][0-9]|[3][0][0])">
+                    <p>10 - 300 min</p>
+                    <br><br>
                     <h2>Pauza između smjena (min)</h2>
                     <input class="option-time" type="text" name="shift-break" maxlength="3" placeholder="<?php echo $_SESSION['s-break']; ?>" pattern="([0-9]|[1-9][0-9]|[1-9][0-9][0-9])">
+                    <p>0 - 999 min</p>
                     <br>
                 </div>
             </form>
             <br>
             <button style="margin-left: 462px;" class="select" type="submit" form="auto-time-set" name="auto-gen">Generiraj</button>
-            <p style="display: inline;"><?php if (isset($_GET['error'])) if ($_GET['error'] == 'emptyfields') echo 'Popunite sva polja.'; ?></p>
+            <br><br>
+            <h5>
+                <?php
+
+                if (isset($_GET['error'])) {
+                    if ($_GET['error'] == 'emptyfields') echo 'Popunite sva polja.';
+                    if ($_GET['error'] == 'nameexists') echo 'Postavka pod tim nazivom već postoji.';
+                    if ($_GET['error'] == 'sqlerror') echo 'Greška u bazi podataka, pokušajte ponovo.';
+                }
+
+                ?>
+            </h5>
         </section>
 
         <section class="section2">
             <div class="menus">
                 <form method="post" id="menu">
                     <h2>Aktivna postavka (<?php echo date('d.m.Y.', time()); ?>)</h2>
-                    <div class="vertical_menu">
+                    <div class="vertical-menu" style="height: 34px;">
                         <?php
 
                         $sql = "SELECT option_name FROM active_setting;";
@@ -99,7 +123,7 @@ arduinoDataSetup();
 
                         $i = 0;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo '<button type="submit" class="vm_option" form="menu" value="' . $row['option_name'] . '" name="active-button">';
+                            echo '<button type="submit" class="vm-option" form="menu" value="' . $row['option_name'] . '" name="active-button">';
                             echo $row['option_name'];
                             echo '</button>';
                             $i++;
@@ -107,9 +131,9 @@ arduinoDataSetup();
 
                         ?>
                     </div>
-
+                    <br>
                     <h2>Spremljene postavke</h2>
-                    <div class="vertical_menu">
+                    <div class="vertical-menu">
                         <?php
 
                         $sql = "SELECT option_name FROM time_set;";
@@ -117,7 +141,7 @@ arduinoDataSetup();
 
                         $i = 0;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo '<button type="submit" class="vm_option" form="menu" value="' . $row['option_name'] . '" name="ts-button' . $i . '">';
+                            echo '<button type="submit" class="vm-option" form="menu" value="' . $row['option_name'] . '" name="ts-button' . $i . '">';
                             echo $row['option_name'];
                             echo '</button>';
                             $i++;
@@ -125,9 +149,9 @@ arduinoDataSetup();
 
                         ?>
                     </div>
-
+                    <br>
                     <h2>Arduino memorija</h2>
-                    <div class="vertical_menu">
+                    <div class="vertical-menu">
                         <?php
 
                         $sql = "SELECT option_name FROM eeprom_mirror;";
@@ -135,7 +159,7 @@ arduinoDataSetup();
 
                         $i = 0;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo '<button type="submit" class="vm_option" form="menu" value="' . $row['option_name'] . '" name="eeprom-button' . $i . '">';
+                            echo '<button type="submit" class="vm-option" form="menu" value="' . $row['option_name'] . '" name="eeprom-button' . $i . '">';
                             echo $row['option_name'];
                             echo '</button>';
                             $i++;
@@ -144,6 +168,7 @@ arduinoDataSetup();
                         ?>
                     </div>
                 </form>
+                <br>
                 <form id="set-active" action="save_to_db.php" method="post">
                     <?php
 
@@ -159,28 +184,23 @@ arduinoDataSetup();
                 <form action="save_to_db.php" method="post" id="time_set">
                     <?php require 'manual_edit.php'; ?>
                 </form>
-
+                <br>
                 <div class="buttons">
                     <form action="admin.php" id="reset" method="post" style="display: inline-block;">
                         <button class="select" type="submit" form="reset" name="form-reset">Očisti unos</button>
                     </form>
                     <?php
-                    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-2']) || isset($_SESSION['selected-button-value-3']) || isset($_SESSION['selected-button-value-4'])) {
+                    if (isset($_SESSION['selected-button-value-1']) || isset($_SESSION['selected-button-value-4'])) {
                         echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi promjene</button>';
                         if ($saveEnable && isset($_SESSION['selected-button-value-1'])) echo '<button class="select" type="submit" form="time_set" name="eeprom-save">Spremi na arduino</button>';
                     } else {
-                        if ($saveEnable && $_GET['error'] != 'emptyfields') echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>';
+                        if ($saveEnable && $_GET['error'] != 'emptyfields' && !isset($_SESSION['selected-button-value-2']) && !isset($_POST['form-reset'])) echo '<button class="select" type="submit" form="time_set" name="db-save">Spremi</button>';
                     }
                     ?>
                 </div>
             </div>
 
         </section>
-
-        <footer>
-            <button class="select" onclick="window.location.href = './settings_by_date.php';">Raspored zvona</button>
-        </footer>
-
     </div>
 </body>
 
@@ -307,7 +327,7 @@ function arduinoDataSetup()
     mysqli_query($conn, $sql);
 
     if ($_SESSION['eeprom-action'] != 'x') {
-        
+
         if ($_SESSION['eeprom-action'] == 'w') {
             $sql = 'SELECT * FROM eeprom_mirror WHERE option_name = \'' . $_SESSION['to-be-set-active']['option_name'] . '\';';
             $result = mysqli_query($conn, $sql);
@@ -334,6 +354,14 @@ function arduinoDataSetup()
             mysqli_stmt_bind_param($stmt, "ssss", $_SESSION['eeprom-action'], $row['option_name'], $row['time_string'], $row['ring_enable']);
             mysqli_stmt_execute($stmt);
         }
+
+        sleep(5);
+
+        $sql = "DELETE FROM arduino_command;";
+        mysqli_query($conn, $sql);
+        $sql = "INSERT INTO arduino_command ( eeprom_action, option_name, time_string, ring_enable ) VALUES ('x', 'x', 'x', 'x');";
+        mysqli_query($conn, $sql);
+        
     } else {
         $sql = "INSERT INTO arduino_command ( eeprom_action, option_name, time_string, ring_enable ) VALUES ('x', 'x', 'x', 'x');";
         mysqli_query($conn, $sql);

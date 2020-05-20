@@ -14,7 +14,7 @@ if (isset($_POST['signup-submit'])) {
     if (empty($username) || empty($password) || empty($passwordRepeat) || empty($entry)) {
         header("Location: ../account_creation_page/" . $entry . "_account_creation.php?error=emptyfields&uid=" . $username);
         exit();
-    } else if (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
+    } else if (!preg_match("/^[a-zA-Z0-9._]*$/", $username)) {
         header("Location: ../account_creation_page/" . $entry . "_account_creation.php?error=invaliduid");
         exit();
     } else if ($password != $passwordRepeat) {

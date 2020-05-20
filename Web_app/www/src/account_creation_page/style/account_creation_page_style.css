@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .wrapper {
@@ -10,7 +11,6 @@
 
 h2 {
     text-decoration: none;
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 20px;
     font-weight: lighter;
     text-align: center;
@@ -20,23 +20,29 @@ input {
     display: block;
     margin: auto;
     width: 300px;
-    height: 20px;
+    height: 30px;
+    font-size: 20px;
     text-align: center;
+    border: 2px solid black;
+    border-top: rgba(0, 0, 0, 0);
+    border-left: rgba(0, 0, 0, 0);
+    border-radius: 10px;
 }
 
 select {
     display: block;
     margin: auto;
-    width: 200px;
+    width: 160px;
     height: 30px;
+    text-align: center;
     text-decoration: none;
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
     font-weight: lighter;
     -webkit-appearance: none;
     -moz-appearance: none;
-    text-indent: 1px;
+    text-indent: 7px;
     text-overflow: '';
+    border-radius: 10px;
 }
 
 button {
@@ -65,13 +71,16 @@ button:active {
 p {
     text-align: center;
     text-decoration: none;
-    font-family: Arial, Helvetica, sans-serif;
     font-weight: lighter;
 }
 
 a {
-    text-align: center;
-    text-decoration: underline;
+    text-decoration: none;
     font-family: Arial, Helvetica, sans-serif;
-    font-weight: lighter;
+    font-size: 18px;
+    color: #599bb3;
+}
+
+a:hover {
+    color: #408c99;
 }

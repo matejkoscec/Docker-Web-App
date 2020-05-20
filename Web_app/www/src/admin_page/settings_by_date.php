@@ -97,12 +97,13 @@ if (isset($_POST['delete'])) {
         <header>
             <?php require '../page_scripts/header.php'; ?>
         </header>
-        <p><a href="./admin.php">Povratak na prethodnu stranicu</a></p>
+        <p><a class="setup" href="./admin.php">↶ Povratak na prethodnu stranicu</a></p>
+        <br>
         <section class="section1">
             <div class="menus">
                 <form method="post" id="menu">
                     <h2>Spremljene postavke</h2>
-                    <div class="vertical_menu">
+                    <div class="vertical-menu">
                         <?php
 
                         $sql = "SELECT option_name FROM time_set;";
@@ -110,7 +111,7 @@ if (isset($_POST['delete'])) {
 
                         $i = 0;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo '<button type="submit" class="vm_option" form="menu" value="' . $row['option_name'] . '" name="ts-button' . $i . '">';
+                            echo '<button type="submit" class="vm-option" form="menu" value="' . $row['option_name'] . '" name="ts-button' . $i . '">';
                             echo $row['option_name'];
                             echo '</button>';
                             $i++;
@@ -120,7 +121,7 @@ if (isset($_POST['delete'])) {
                     </div>
 
                     <h2>Arduino memorija</h2>
-                    <div class="vertical_menu">
+                    <div class="vertical-menu">
                         <?php
 
                         $sql = "SELECT option_name FROM eeprom_mirror;";
@@ -128,7 +129,7 @@ if (isset($_POST['delete'])) {
 
                         $i = 0;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo '<button type="submit" class="vm_option" form="menu" value="' . $row['option_name'] . '" name="eeprom-button' . $i . '">';
+                            echo '<button type="submit" class="vm-option" form="menu" value="' . $row['option_name'] . '" name="eeprom-button' . $i . '">';
                             echo $row['option_name'];
                             echo '</button>';
                             $i++;
@@ -136,7 +137,7 @@ if (isset($_POST['delete'])) {
 
                         ?>
                     </div>
-
+                    <br>
                     <?php buttonDisplay(); ?>
 
                 </form>
@@ -153,9 +154,8 @@ if (isset($_POST['delete'])) {
 
             </div>
         </section>
-
+        <br>
         <section class="section2">
-
             <div>
                 <?php require '../page_scripts/time_display.php'; ?>
             </div>

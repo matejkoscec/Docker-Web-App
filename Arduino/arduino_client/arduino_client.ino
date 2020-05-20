@@ -18,17 +18,15 @@ String temp_string = "";
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-// Set the static IP address to use if the DHCP fails to assign
 IPAddress ip(192, 168, 1, 69);
 IPAddress myDns(192, 168, 1, 1);
 
-// initialize the library instance:
 EthernetClient client;
 
 char server[] = "192.168.1.102";
 
-unsigned long lastConnectionTime = 0;           // last time you connected to the server, in milliseconds
-const unsigned long postingInterval = 5000;     // delay between updates, in milliseconds
+unsigned long lastConnectionTime = 0;
+const unsigned long postingInterval = 5000;
 unsigned long lastConnectionAttempt = 0;
 
 bool httpRequestActive = false;
@@ -47,7 +45,7 @@ struct time_
 
 uint8_t struct_size = sizeof(time_);
 
-const int max_records = 100;
+const int max_records = 10;
 time_ time_set[max_records], time_get;
 
 
@@ -63,6 +61,7 @@ int relay_signal_pin = 4;
 
 int nextRingIndex = 0;
 int ring_time_array[200];
+String ringEn = "";
 
 
 //LCD
@@ -92,6 +91,8 @@ bool exitSelectActive = false;
 
 byte arrowDown[] = { 0x04, 0x04, 0x04, 0x04, 0x15, 0x0E, 0x04, 0x00 };
 byte arrowUp[] = { 0x04, 0x0E, 0x15, 0x04, 0x04, 0x04, 0x04, 0x00 };
+byte serverIcon[] = { 0x1F, 0x11, 0x1F, 0x11, 0x15, 0x15, 0x11, 0x1F };
+byte bellIcon[] = { 0x00, 0x04, 0x0E, 0x0E, 0x0E, 0x1F, 0x04, 0x00 };
 
 
 //----------------------------------------------------------------------------------------------------
@@ -123,8 +124,10 @@ void setup()
   lcd.clear();
   lcd.createChar(0, arrowDown);
   lcd.createChar(1, arrowUp);
+  lcd.createChar(2, serverIcon);
+  lcd.createChar(3, bellIcon);
   lcd.clear();
-
+  
   time_set[0] = {
     0,
     "Standardno",
@@ -144,12 +147,12 @@ void setup()
   updateStruct();
 
   activeRingingSetup();
-  for (int i = 0; i < 200; i++) Serial.println(ring_time_array[i]);
   getNextRingIndex();
-
+  
   initialStartup();
   mainDisplay();
 }
+
 
 void loop()
 {
@@ -202,6 +205,7 @@ void readServerData()
       temp_string += c;
       client.stop();
       httpRequestActive = false;
+      Serial.println(temp_string[1]);
       eepromManage(temp_string);
       temp_string = "";
     }
@@ -212,11 +216,8 @@ void readServerData()
 
 void ethernetSetup()
 {
-  // start the Ethernet connection:
-  //Serial.println("Initialize Ethernet with DHCP:");
   if (Ethernet.begin(mac) == 0)
   {
-    //Serial.println("Failed to configure Ethernet using DHCP");
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(" DHCP nije dostupan ");
@@ -224,24 +225,24 @@ void ethernetSetup()
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Povezivanje na mrezu");
-    // Check for Ethernet hardware present
+    
     if (Ethernet.hardwareStatus() == EthernetNoHardware)
     {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+      Serial.println("Ethernet shield nije spojen");
       lcd.setCursor(0, 1);
       lcd.print("  Eth. shield N/A  ");
       delay(1000);
     }
     if (Ethernet.linkStatus() == LinkOFF)
     {
-      Serial.println("Ethernet cable is not connected.");
+      Serial.println("Ethernet kabel nije spojen");
       lcd.setCursor(0, 1);
       lcd.print("  Kabel nije spojen ");
       delay(1000);
     }
-    // try to congifure using IP address instead of DHCP:
+    
     Ethernet.begin(mac, ip, myDns);
-    Serial.print("My IP address: ");
+    Serial.print("IP adresa: ");
     Serial.println(Ethernet.localIP());
     lcd.setCursor(0, 0);
     lcd.print("Dodjela staticke IP ");
@@ -251,14 +252,13 @@ void ethernetSetup()
   }
   else
   {
-    //Serial.print("  DHCP assigned IP ");
     lcd.setCursor(0, 0);
     lcd.print("  DHCP dodijeljena  ");
     lcd.setCursor(0, 1);
     lcd.print(" adr.: ");
     lcd.print(Ethernet.localIP());
   }
-  // give the Ethernet shield a second to initialize:
+  
   delay(1000);
 }
 
@@ -316,7 +316,7 @@ void eepromManage(String string)
   if (string[1] == 'c')
   {
     Serial.print("\nclear\n");
-    for (int i = struct_size * 2; i < EEPROM.length(); i++) EEPROM.write(i, 0);
+    for (int i = 0; i < struct_size * max_records; i++) EEPROM.write(i, 0);
     setup();
   }
 
@@ -350,6 +350,7 @@ void eepromManage(String string)
       time_get.option_name += string[i];
       i++;
     }
+    
     i++;
     while (string[i] != '?')
     {
@@ -362,6 +363,7 @@ void eepromManage(String string)
       time_get.ring_enable += string[i];
       i++;
     }
+    //if (checkNameExists(time_get.option_name)) return;
 
     EEPROM.put(time_get.location, time_get);
   }
@@ -374,7 +376,7 @@ void eepromManage(String string)
     time_get.option_name = "";
     time_get.option_value = "";
     time_get.ring_enable = "";
-    Serial.print("\nwrite\n");
+    Serial.print("\active\n");
     int i = 2;
     while (string[i] != '?')
     {
@@ -393,13 +395,45 @@ void eepromManage(String string)
       time_get.ring_enable += string[i];
       i++;
     }
+    
+    Serial.println(time_get.option_name);
+    Serial.println(time_get.option_value);
+    Serial.println(time_get.ring_enable);
+    //if (checkNameExists(time_get.option_name)) return;
 
     EEPROM.put(time_get.location, time_get);
   }
 
+  if (string[1] == '?')
+  {
+    time_get.location = 0;
+    time_get.option_name = "  Danas ne zvonim.  ";
+    time_get.option_value = "";
+    time_get.ring_enable = "";
+
+    EEPROM.put(time_get.location, time_get);
+  }
+
+  activeRingingSetup();
   updateStruct();
   EEPROM.get(0, time_get);
   return;
+}
+
+
+
+bool checkNameExists(String _name)
+{
+  for (int i = struct_size; i < struct_size * max_records; i += struct_size)
+  {
+    EEPROM.get(i, time_get);
+    if (time_get.option_name == _name)
+    {
+      Serial.println("name exists");
+      return true;
+    }
+  }
+  return false;
 }
 
 
@@ -460,11 +494,12 @@ void moveRecords (int index)
 void activeRingingSetup()
 {
   EEPROM.get(0, time_get);
+  ringEn = time_get.ring_enable;
   String temp[time_get.option_value.length()];
   int j = 0;
   for (int i = 0; i < time_get.option_value.length(); ++i)
   {
-    if (time_get.option_value[i] == '#') break;
+    if (time_get.option_value[i] == '\0') break;
 
     temp[i].concat(time_get.option_value[i]);
     if (i % 2 != 0)
@@ -481,7 +516,7 @@ void getNextRingIndex()
   _time = rtc.getTime();
   for (int i = 0; i < 200; i += 2)
   {
-    if ((ring_time_array[i] >= _time.hour && ring_time_array[i + 1] > _time.min) || ring_time_array[i] > _time.hour)
+    if (((ring_time_array[i] >= _time.hour && ring_time_array[i + 1] > _time.min) || ring_time_array[i] > _time.hour) && ringEn[i / 4] == '1')
     {
       nextRingIndex = i;
       return;
@@ -498,7 +533,7 @@ void timeCheck()
   {
     if (_time.hour == ring_time_array[i] && _time.min == ring_time_array[i + 1] && _time.sec < 1)
     {
-      if (ring_time_array[i] != 0 && ring_time_array[i + 1] != 0 && ring_time_array[i + 2] != 0 && ring_time_array[i + 3] != 0)
+      if (ring_time_array[i] != 0 && ring_time_array[i + 1] != 0 && ring_time_array[i + 2] != 0 && ring_time_array[i + 3] != 0 && ringEn[i / 4] == '1')
       {
         nextRingIndex = i + 2;
         long unsigned previousTime = millis();
@@ -794,17 +829,18 @@ void mainDisplay()
   String dan = getDOW();
   lcd.print(dan);
   lcd.print(", ");
-  lcd.print(rtc.getDateStr());
-  lcd.print(".");
-  lcd.setCursor(0, 1);
   lcd.print(rtc.getTimeStr());
-  lcd.setCursor(12, 1);
-  if (serverAvailable) lcd.print("       ");
-  else lcd.print("!Server");
+  lcd.setCursor(18, 0);
+  if (serverAvailable) lcd.print("  ");
+  else
+  {
+    lcd.write(2);
+    lcd.print("x");
+  }
+  lcd.setCursor(0, 1);
+  for (int i = 0; i < 20; i++) if (isAlphaNumeric(time_get.option_name[i]) || time_get.option_name[i] == ' ') lcd.print(time_get.option_name[i]);
   lcd.setCursor(0, 2);
-  for (int i = 0; i < 20; i++) if (isAlphaNumeric(time_get.option_name[i]) || time_set[eepromIndex / struct_size].option_name[i] == ' ') lcd.print(time_get.option_name[i]);
-  lcd.setCursor(0, 3);
-  lcd.print("Zvono: ");
+  lcd.print("Kraj sata: ");
   if (ring_time_array[nextRingIndex] == 0) lcd.print("00");
   else lcd.print(ring_time_array[nextRingIndex]);
   lcd.print(":");
@@ -815,13 +851,17 @@ void mainDisplay()
     lcd.print(ring_time_array[nextRingIndex + 1]);
   }
   else lcd.print(ring_time_array[nextRingIndex + 1]);
-  lcd.print(" (");
+  lcd.print(" ");
+  if (time_get.ring_enable[nextRingIndex / 4] == '1') lcd.write(3);
+  else lcd.print("  ");
+  lcd.setCursor(0, 3);
+  lcd.print("Zvoni za: ");
   _time = rtc.getTime();
   int minutes;
   if (ring_time_array[nextRingIndex] < _time.hour) minutes = (24 - _time.hour) * 60 - 60 + (60 - _time.min) + ring_time_array[nextRingIndex] * 60 + ring_time_array[nextRingIndex + 1];
   else minutes = (ring_time_array[nextRingIndex] - _time.hour) * 60 + (ring_time_array[nextRingIndex + 1] - _time.min);
   lcd.print(minutes);
-  lcd.print("min) ");
+  lcd.print("min ");
 }
 
 

@@ -37,25 +37,30 @@ $_SESSION['selected-button-value-4'] = NULL;
         <header>
             <?php require '../page_scripts/header.php'; ?>
         </header>
-
+        <?php if ($_SESSION['entry'] == 'admin') echo '<a class="setup" href="../admin_page/admin.php">🕐 Postavljanje zvona</a>'; ?>
         <section class="section1">
             <div class="calendar-wrapper">
                 <?php
 
-                if (!isset($_SESSION['time'])) $_SESSION['time'] = date('Y-m', time());
+                if (!isset($_SESSION['time'])) {
+                    $_SESSION['time'] = date('Y-m', time());
+                    $_SESSION['date-to-parse'] = date('d.m.Y.');
+                }
                 calendarHandler();
 
                 require '../page_scripts/calendar.php';
 
                 ?>
-
             </div>
             <div>
-                <?php require '../page_scripts/time_display.php'; ?>
+                <?php
+                
+                echo '<p>' . $_SESSION['date-to-parse'] . '</p><br>';
+                require '../page_scripts/time_display.php';
+
+                ?>
             </div>
         </section>
-
-        <?php if ($_SESSION['entry'] == 'admin') echo '<a href="../admin_page/admin.php">Postavljanje zvona</a>' ?>
     </div>
 </body>
 
@@ -77,7 +82,7 @@ function calendarHandler()
             if (isset($_SESSION['selected-button-value'])) {
                 if ($_SESSION['selected-button-value'] < 10) $_SESSION['selected-button-value'] = '0' . $_SESSION['selected-button-value'];
                 $dateToParse = $_SESSION['calendar-date'] . '-' . $_SESSION['selected-button-value'];
-                $_SESSION['date-to-parse'] = $dateToParse;
+                $_SESSION['date-to-parse'] = date('d.m.Y.', strtotime($dateToParse));
 
                 $sql = 'SELECT * FROM settings_by_date WHERE date_active = \'' . $dateToParse . '\'';
             }
